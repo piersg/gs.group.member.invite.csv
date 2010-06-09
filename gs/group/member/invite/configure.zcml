@@ -3,4 +3,32 @@
   xmlns:browser="http://namespaces.zope.org/browser"
   xmlns:five="http://namespaces.zope.org/five"
   i18n_domain="groupserver">
+
+  <browser:page 
+    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    name="admin_join.html"
+    class=".invite.InviteEditProfileForm"
+    permission="zope2.ManageUsers"/>
+    
+  <!--browser:page 
+    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    name="admin_join_csv.html"
+    class=".create_users_from_csv.CreateUsersForm"
+    template="browser/templates/admin_create_users_from_csv.pt"
+    permission="zope2.ManageUsers"/-->
+
+  <browser:page
+    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    name="admin_invitation_message_preview.html"
+    class=".invitationmessage.InvitationMessage"
+    permission="zope2.ManageUsers"/>
+
+  <interface 
+    interface=".interfaces.IGSInvitationMessageContentProvider"
+    type="zope.contentprovider.interfaces.ITALNamespaceData"/>
+  <adapter
+    factory=".invitationmessagecontentprovider.InvitationMessageContentProvider"
+    provides="zope.contentprovider.interfaces.IContentProvider"
+    name="groupserver.InvitationMessage"/>
+
 </configure>
