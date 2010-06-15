@@ -1,0 +1,3 @@
+recursive-include abel *
+recursive-include docs *
+include version.py
