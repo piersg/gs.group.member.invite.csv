@@ -2,6 +2,7 @@
 import md5
 from time import asctime
 from Products.CustomUserFolder.interfaces import IGSUserInfo, ICustomUser
+from Products.GSGroup.interfaces import IGSGroupInfo
 from Products.GSProfile.utils import userInfo_to_user, \
   verificationId_from_email
 from queries import InvitationQuery
