@@ -1,0 +1,119 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:tal="http://xml.zope.org/namespaces/tal"
+  xmlns:metal="http://xml.zope.org/namespaces/metal"
+  metal:use-macro="context/@@groupserver_site_home_layout/page">
+  <head>
+    <title metal:fill-slot="title">Create Members in Bulk</title>
+  </head>
+  <body>
+    <div metal:fill-slot="messages"
+      tal:define="result view/process_form;
+      isError python:result.get('error', False);"
+      tal:condition="python:result and result.has_key('message')"
+      tal:attributes="class python:(isError and 'message-error') or 'message-result'"
+      tal:content="structure result/message"/>
+    <div metal:fill-slot="body">
+      <form enctype="multipart/form-data"  method="post" action="."
+        tal:attributes="action request/URL" id="edit-profile">
+        
+        <h1>Create Members in Bulk</h1>
+        <p>
+          As a group administrator, you can create members in bulk, using 
+          a spreadsheet.
+        </p>
+        <h2>Step 1: Create the CSV File</h2>
+        <p>Create the CSV (comma-separated value) file &#8212; which will 
+          contain a list of all the members you wish to create &#8212; in a
+          spreadsheet program, such as Microsoft Excel, NeoOffice Calc, or
+          OpenOffice Calc. 
+          The file should contain at least two rows: a header, and a row 
+          for each member that you wish to add.
+          There needs to be at least two columns for each member: one for
+          each user's email address and another for the user's name.
+        </p>
+        <p>
+          Expert administrators can also add extra columns, but this is 
+          not necessary. 
+          Experts should also note that you should not create more than 
+          100 members at any one time, as strange timeout issues occur.
+        </p>
+        <h2>Step 2: Select the CSV File</h2>
+        <p>
+          After saving the file in CSV format select it using the
+          selector below.
+        </p>
+        <label class="required"
+          title="The comma-seperated value (CSV) file that contains the data for the new members"
+          for="csvfile">CSV File</label>
+        <input class="fileType" id="csvfile" name="csvfile" 
+          type="file"  />
+        <h2>Step 3: Set the Columns</h2>
+        <p>Now set the column headers. 
+          If you did not add any headers in Step 1, then the first two 
+          column headers should be Email Address and Name and
+          the other columns should be set to Unused.
+        </p>
+        <div id="columns">
+          <tal:block
+            repeat="column view/columns">
+            <label for="#"
+              tal:attributes="for column/columnId"
+              tal:content="column/columnTitle">Stuff</label>
+            <select id="#" name="#" 
+              tal:define="n repeat/column/number"
+              tal:attributes="id column/columnId; name column/columnId">
+              <tal:block
+                repeat="option column/profileList">
+                <tal:block
+                  define="initial python:(n==1 and option.token == 'email') or (n==2 and option.token == 'fn')">
+                  <option 
+                    tal:condition="initial"
+                    selected="selected"
+                    tal:content="option/title"
+                    tal:define="m repeat/option/number"
+                    tal:attributes="value option/token"/>
+                  <option 
+                    tal:condition="not:initial"
+                    tal:content="option/title"
+                    tal:define="m repeat/option/number"
+                    tal:attributes="value option/token"/>
+                </tal:block>
+              </tal:block>
+              <option tal:condition="python:n&gt;2"
+                selected="selected" value="nothing">(Unused)</option>
+              <option tal:condition="python:n&lt;=2"
+                value="nothing">(Unused)</option>
+            </select>
+          </tal:block>
+        </div><!--columns-->
+
+        <h2>Step 4: Set the Message Delivery Settings</h2>
+        <div class="value">
+          <input id="delivery.0" class="radioType" type="radio" 
+            value="email" name="delivery" checked="checked"/>
+          <label class="radioLabel" for="delivery.0">One email per 
+            post.</label>
+          <br/>
+          <input id="delivery.1" class="radioType" type="radio" 
+            value="digest" name="delivery"/>
+          <label class="radioLabel" for="delivery.1">Daily digest of 
+            topics.</label>
+          <br/>
+          <input id="delivery.2" class="radioType" type="radio" 
+            value="web" name="delivery"/>
+          <label class="radioLabel" for="delivery.2">Web only</label>
+        </div>
+        <h2>Step 5: Create the Users</h2>
+        <p>
+          Click the <samp class="button">Create</samp> button to
+          create the users specified in your CSV file.
+        </p>
+        <input type="hidden" id="submitted" name="submitted" 
+          class="hidden" value=""/>
+        <input type="submit" id="create" name="create" class="button"
+          value="Create"/>
+      </form>
+    </div>
+  </body>
+</html>
+

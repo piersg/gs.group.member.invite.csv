@@ -15,9 +15,10 @@ from Products.XWFCore.CSV import CSVFile
 from Products.CustomUserFolder.CustomUser import CustomUser
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.GSGroupMember.groupmembership import *
+from gs.group.member.invite.utils import invite_to_groups
 import interfaces, utils
-from interfaceCoreProfile import deliveryVocab
-from emailaddress import NewEmailAddress, NotAValidEmailAddress,\
+from Products.GSProfile.interfaceCoreProfile import deliveryVocab
+from Products.GSProfile.emailaddress import NewEmailAddress, NotAValidEmailAddress,\
   DisposableEmailAddressNotAllowed, EmailAddressExists
 from zope.formlib import form
 
