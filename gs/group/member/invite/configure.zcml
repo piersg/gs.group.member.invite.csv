@@ -10,12 +10,12 @@
     class=".invite.InviteEditProfileForm"
     permission="zope2.ManageUsers"/>
     
-  <!--browser:page 
+  <browser:page 
     for="Products.XWFChat.interfaces.IGSGroupFolder"
     name="admin_join_csv.html"
     class=".create_users_from_csv.CreateUsersForm"
     template="browser/templates/admin_create_users_from_csv.pt"
-    permission="zope2.ManageUsers"/-->
+    permission="zope2.ManageUsers"/>
 
   <browser:page 
     for="Products.XWFChat.interfaces.IGSGroupFolder"
