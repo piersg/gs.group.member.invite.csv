@@ -2,6 +2,7 @@
 from zope.schema import *
 from zope.interface.interface import Interface
 from zope.schema.vocabulary import SimpleVocabulary
+from Products.GSProfile.interfaces import deliveryVocab
 
 class IGSInvitationMessage(Interface):
     text = Bool(title=u'Text',
@@ -50,4 +51,19 @@ class IGSInvitationMessageContentProvider(IGSInvitationMessage):
             u'render the status message.',
           required=False,
           default="browser/templates/invitationmessagecontentprovider.pt")
+
+class IGSInviteSiteMembers(Interface):
+    site_members = List(title=u'Site Members',
+      description=u'The members of this site that are not a member of '\
+        u'this group.',
+      value_type=Choice(title=u'Group',
+                      vocabulary='groupserver.InviteMembersNonGroupMembers'),
+      unique=True,
+      required=True)
+
+    delivery = Choice(title=u'Group Message Delivery Settings',
+      description=u'The message delivery settings for the new group '\
+        u'members.',
+      vocabulary=deliveryVocab,
+      default='email')
 

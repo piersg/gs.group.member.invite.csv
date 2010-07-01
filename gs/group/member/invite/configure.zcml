@@ -17,6 +17,12 @@
     template="browser/templates/admin_create_users_from_csv.pt"
     permission="zope2.ManageUsers"/-->
 
+  <browser:page 
+    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    name="admin_invite_site_members.html"
+    class=".invitesitemembers.GSInviteSiteMembersForm"
+    permission="zope2.ManageUsers"/>
+
   <browser:page
     for="Products.XWFChat.interfaces.IGSGroupFolder"
     name="admin_invitation_message_preview.html"

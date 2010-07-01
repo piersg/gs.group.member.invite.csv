@@ -20,7 +20,7 @@ from Products.GSGroup.changebasicprivacy import radio_widget
 from gs.profile.notify.interfaces import IGSNotifyUser
 from gs.profile.notify.adressee import Addressee, SupportAddressee
 from queries import InvitationQuery
-from utils import set_digest, invite_to_groups, invite_id
+from utils import set_digest, invite_id
 from invitefields import InviteFields
 from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER
 from invitationmessagecontentprovider import InvitationMessageContentProvider
@@ -128,28 +128,28 @@ this invitation.''' % self.groupInfo.name
             user = acl_users.get_userByEmail(toAddr)
             assert user, 'User for address <%s> not found' % toAddr
             userInfo = IGSUserInfo(user)
-            u = userInfo_to_anchor(userInfo)
-            
+            u = userInfo_to_anchor(userInfo)            
+            auditor = Auditor(self.siteInfo, self.groupInfo, 
+                self.adminInfo, userInfo)
+                
             if user_member_of_group(user, self.groupInfo):
                 self.status=u'''<li>The person with the email address %s 
 &#8213; %s &#8213; is already a member of %s.</li>'''% (e, u, g)
                 self.status = u'%s<li>No changes have been made.</li>' % \
                   self.status
             else:
-                auditor = Auditor(self.siteInfo, self.groupInfo, 
-                    self.adminInfo, userInfo)
-                self.status=u'''<li>Inviting the existing person with the
-email address %s &#8213; %s &#8213; to join %s.</li>'''% (e, u, g)
-                #TODO check: invite_to_groups(userInfo, adminInfo, self.groupInfo)
+                self.status=u'''<li>Inviting the existing person with '\
+                  u'the email address %s &#8213; %s &#8213; to join '\
+                  u'%s.</li>'''% (e, u, g)
+                inviteId = self.create_invitation(userInfo, data)
                 auditor.info(INVITE_OLD_USER, toAddr)
+                self.send_notification(userInfo, inviteId, data)
         else:
             # Email address does not exist, but it is a legitimate address
             user = create_user_from_email(self.context, toAddr)
             userInfo = IGSUserInfo(user)
             self.add_profile_attributes(userInfo, data)
             inviteId = self.create_invitation(userInfo, data)
-            auditor = Auditor(self.siteInfo, self.groupInfo, 
-                self.adminInfo, userInfo)
             auditor.info(INVITE_NEW_USER, toAddr)
             self.send_notification(userInfo, inviteId, data)
             
@@ -185,13 +185,23 @@ given the email address %s.</li>\n''' % (u, e)
         
     def send_notification(self, userInfo, inviteId, data):
         mfrom = data['fromAddr'].strip()
-        mto = data['toAddr'].strip()
         cp = InvitationMessageContentProvider(self.context, self.request, self)
         self.vars = {} # --=mpj17=-- Ask me no questions\ldots
         addTALNamespaceData(cp, self.context) # I tell you no lies.
-        msg = create_invitation_message(Addressee(self.adminInfo, mfrom), 
-            Addressee(userInfo, mto), SupportAddressee(self.context, self.siteInfo), 
-            data['subject'], data['message'], inviteId, cp)
         notifiedUser = IGSNotifyUser(userInfo)
-        notifiedUser.send_message(msg, mto, mfrom)
+        
+        if  (notifiedUser.get_addresses() > 0):
+            # --=mpj17=-- An existing user, not a new user
+            addresses = notifiedUser.get_addresses()
+        else:
+            toAddr = data['toAddr'].strip()
+            addresses = [toAddr]
+            
+        for mto in addresses:
+            msg = create_invitation_message(
+                Addressee(self.adminInfo, mfrom),
+                Addressee(userInfo, mto), 
+                SupportAddressee(self.context, self.siteInfo), 
+                data['subject'], data['message'], inviteId, cp)
+            notifiedUser.send_message(msg, mto, mfrom)
 
