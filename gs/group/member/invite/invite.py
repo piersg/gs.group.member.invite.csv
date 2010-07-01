@@ -19,12 +19,9 @@ from Products.GSProfile.emailaddress import NewEmailAddress, \
 from Products.GSGroup.changebasicprivacy import radio_widget
 from gs.profile.notify.interfaces import IGSNotifyUser
 from gs.profile.notify.adressee import Addressee, SupportAddressee
-from queries import InvitationQuery
-from utils import set_digest, invite_id
+from utils import set_digest
 from invitefields import InviteFields
 from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER
-from invitationmessagecontentprovider import InvitationMessageContentProvider
-from createinvitation import create_invitation_message
 
 class InviteEditProfileForm(PageForm):
     label = u'Invite a New Group Member'
@@ -37,7 +34,7 @@ class InviteEditProfileForm(PageForm):
         siteInfo = self.siteInfo = \
           createObject('groupserver.SiteInfo', context)
         self.__groupInfo = self.__formFields =  self.__config = None
-        self.__adminInfo = self.__invitationQuery = None
+        self.__adminInfo = None
         self.inviteFields = InviteFields(context)
 
     @property
@@ -106,13 +103,6 @@ this invitation.''' % self.groupInfo.name
     def profileWidgets(self):
         return self.inviteFields.get_profile_widgets(self.widgets)    
         
-    @property
-    def invitationQuery(self):
-        if self.__invitationQuery == None:
-            da = self.context.zsqlalchemy
-            self.__invitationQuery = InvitationQuery(da)
-        return self.__invitationQuery
-        
     def actual_handle_add(self, action, data):
         acl_users = self.context.acl_users
         toAddr = data['toAddr'].strip()
@@ -131,6 +121,8 @@ this invitation.''' % self.groupInfo.name
             u = userInfo_to_anchor(userInfo)            
             auditor = Auditor(self.siteInfo, self.groupInfo, 
                 self.adminInfo, userInfo)
+            inviter = Inviter(self.context, self.request, userInfo, 
+                                self.adminInfo, self.groupInfo)
                 
             if user_member_of_group(user, self.groupInfo):
                 self.status=u'''<li>The person with the email address %s 
@@ -141,17 +133,19 @@ this invitation.''' % self.groupInfo.name
                 self.status=u'''<li>Inviting the existing person with '\
                   u'the email address %s &#8213; %s &#8213; to join '\
                   u'%s.</li>'''% (e, u, g)
-                inviteId = self.create_invitation(userInfo, data)
+                inviteId = inviter.create_invitation(data, False)
                 auditor.info(INVITE_OLD_USER, toAddr)
-                self.send_notification(userInfo, inviteId, data)
+                inviter.send_notification(data['subject'], 
+                    data['message'], inviteId, data['fromAddr'])
         else:
             # Email address does not exist, but it is a legitimate address
             user = create_user_from_email(self.context, toAddr)
             userInfo = IGSUserInfo(user)
             self.add_profile_attributes(userInfo, data)
-            inviteId = self.create_invitation(userInfo, data)
+            inviteId = inviter.create_invitation(data, True)
             auditor.info(INVITE_NEW_USER, toAddr)
-            self.send_notification(userInfo, inviteId, data)
+            inviter.send_notification(data['subject'], data['message'], 
+                inviteId, data['fromAddr'], data['toAddr'])
             
             u = userInfo_to_anchor(userInfo)
             self.status = u'''<li>A profile for %s has been created, and
@@ -173,35 +167,4 @@ given the email address %s.</li>\n''' % (u, e)
         changed = form.applyChanges(userInfo.user, fields, data)
         set_digest(userInfo, self.groupInfo, data)
 
-    # TODO: The following two methods need to be shared with the CSV code
-    def create_invitation(self, userInfo, data):
-        miscStr = reduce(concat, [unicode(i).encode('ascii', 'xmlcharrefreplace') 
-                                    for i in data.values()], '')
-        inviteId = invite_id(self.siteInfo.id, self.groupInfo.id, 
-            self.adminInfo.id, miscStr)
-        self.invitationQuery.add_invitation(inviteId, self.siteInfo.id,
-            self.groupInfo.id, userInfo.id, self.adminInfo.id, True)
-        return inviteId
-        
-    def send_notification(self, userInfo, inviteId, data):
-        mfrom = data['fromAddr'].strip()
-        cp = InvitationMessageContentProvider(self.context, self.request, self)
-        self.vars = {} # --=mpj17=-- Ask me no questions\ldots
-        addTALNamespaceData(cp, self.context) # I tell you no lies.
-        notifiedUser = IGSNotifyUser(userInfo)
-        
-        if  (notifiedUser.get_addresses() > 0):
-            # --=mpj17=-- An existing user, not a new user
-            addresses = notifiedUser.get_addresses()
-        else:
-            toAddr = data['toAddr'].strip()
-            addresses = [toAddr]
-            
-        for mto in addresses:
-            msg = create_invitation_message(
-                Addressee(self.adminInfo, mfrom),
-                Addressee(userInfo, mto), 
-                SupportAddressee(self.context, self.siteInfo), 
-                data['subject'], data['message'], inviteId, cp)
-            notifiedUser.send_message(msg, mto, mfrom)
 

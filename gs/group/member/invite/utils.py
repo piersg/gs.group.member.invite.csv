@@ -75,6 +75,8 @@ def invite_to_groups(userInfo, invitingUserInfo, groups):
     assert da, 'No data-adaptor found'
     invitationQuery = InvitationQuery(da)
 
+
+
     groupNames = []    
     for groupInfo in groupInfos:
         assert IGSGroupInfo.providedBy(groupInfo)
