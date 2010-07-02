@@ -1,9 +1,7 @@
 # coding=utf-8
 '''The form that allows an admin to invite a new person to join a group.'''
-from operator import concat
 from zope.component import createObject
 from zope.formlib import form
-from zope.contentprovider.tales import addTALNamespaceData
 from Products.Five.formlib.formbase import PageForm
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.interfaces import IGSUserInfo
@@ -17,10 +15,9 @@ from Products.GSProfile.utils import create_user_from_email, \
 from Products.GSProfile.emailaddress import NewEmailAddress, \
     EmailAddressExists
 from Products.GSGroup.changebasicprivacy import radio_widget
-from gs.profile.notify.interfaces import IGSNotifyUser
-from gs.profile.notify.adressee import Addressee, SupportAddressee
 from utils import set_digest
 from invitefields import InviteFields
+from inviter import Inviter
 from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER
 
 class InviteEditProfileForm(PageForm):
@@ -114,7 +111,7 @@ this invitation.''' % self.groupInfo.name
         
         try:
             emailChecker.validate(toAddr)
-        except EmailAddressExists, e:
+        except EmailAddressExists, errorVal:
             user = acl_users.get_userByEmail(toAddr)
             assert user, 'User for address <%s> not found' % toAddr
             userInfo = IGSUserInfo(user)
@@ -122,7 +119,8 @@ this invitation.''' % self.groupInfo.name
             auditor = Auditor(self.siteInfo, self.groupInfo, 
                 self.adminInfo, userInfo)
             inviter = Inviter(self.context, self.request, userInfo, 
-                                self.adminInfo, self.groupInfo)
+                                self.adminInfo, self.siteInfo, 
+                                self.groupInfo)
                 
             if user_member_of_group(user, self.groupInfo):
                 self.status=u'''<li>The person with the email address %s 
@@ -130,9 +128,9 @@ this invitation.''' % self.groupInfo.name
                 self.status = u'%s<li>No changes have been made.</li>' % \
                   self.status
             else:
-                self.status=u'''<li>Inviting the existing person with '\
+                self.status=u'<li>Inviting the existing person with '\
                   u'the email address %s &#8213; %s &#8213; to join '\
-                  u'%s.</li>'''% (e, u, g)
+                  u'%s.</li>'% (e, u, g)
                 inviteId = inviter.create_invitation(data, False)
                 auditor.info(INVITE_OLD_USER, toAddr)
                 inviter.send_notification(data['subject'], 

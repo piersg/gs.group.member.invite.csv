@@ -67,7 +67,7 @@ class GSInviteSiteMembersForm(PageForm):
         else:
             self.status = u'<p>There are errors:</p>'
 
-    def set_delivery(self, userInfo, delivery)
+    def set_delivery(self, userInfo, delivery):
         if delivery == 'email':
             # --=mpj17=-- The default is one email per post
             pass

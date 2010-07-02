@@ -1,15 +1,20 @@
 # coding=utf-8
+from operator import concat
+from zope.contentprovider.tales import addTALNamespaceData
+from gs.profile.notify.interfaces import IGSNotifyUser
+from gs.profile.notify.adressee import Addressee, SupportAddressee
 from queries import InvitationQuery
 from utils import invite_id
 from invitationmessagecontentprovider import InvitationMessageContentProvider
 from createinvitation import create_invitation_message
 
 class Inviter(object):
-    def __init__(self, context, request, userInfo, adminInfo, groupInfo):
+    def __init__(self, context, request, userInfo, adminInfo, siteInfo, groupInfo):
         self.context = context
         self.request = request
         self.userInfo = userInfo
         self.adminInfo = adminInfo
+        self.siteInfo = siteInfo
         self.groupInfo = groupInfo
         self.__invitationQuery = self.__contentProvider = None
         
@@ -34,7 +39,7 @@ class Inviter(object):
         if self.__contentProvider == None:
             self.__contentProvider = \
                 InvitationMessageContentProvider(self.context, self.request, self)
-            self.vars = {} # --=mpj17=-- Ask me no questions\ldots
+            self.context.vars = {} # --=mpj17=-- Ask me no questions\ldots
             addTALNamespaceData(self.__contentProvider, self.context) # I tell you no lies.
         return self.__contentProvider
         
