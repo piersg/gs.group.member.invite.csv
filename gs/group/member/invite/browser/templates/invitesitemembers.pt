@@ -31,15 +31,40 @@
           To invite existing site members to join
           <span class="group" 
             tal:content="view/groupInfo/name">this group</span>,
-          select them from the list below and click the
+          select them from the list of site members below and click the
           <samp class="button" 
             tal:define="action python:[a for a in view.actions][0].label"
             tal:content="action">Big R</samp> 
           button.
         </p>
-        <div id="site-members" tal:define="widgets view/widgets">
+        <div id="invitation">
+          <h2>Invitation</h2>
+          <p>
+            The invitation message will be sent as an email. 
+            You can change the subject and body message by altering the
+            fields below.
+          </p>
+          <tal:block 
+            define="widgets python:[view.widgets['fromAddr'], view.widgets['subject'], view.widgets['message']]">
+            <tal:block replace="structure provider:groupserver.FormWidgets"/>
+          </tal:block>
+        </div> 
+        <h2>People to Invite</h2>
+        <p>
+          The invitation will be sent to all the site members you 
+          select in the list below.
+        </p>
+        <tal:block define="widgets python:[view.widgets['site_members']]">
           <tal:block replace="structure provider:groupserver.FormWidgets"/>
-        </div>
+        </tal:block>
+        <h2>Delivery Settings</h2>
+        <p>
+          You can set the inital message delivery settings for the
+          people you invite below.
+        </p>
+        <tal:block define="widgets python:[view.widgets['delivery']]">
+          <tal:block replace="structure provider:groupserver.FormWidgets"/>
+        </tal:block>
         <div class="buttons" tal:condition="view/availableActions">
           <tal:block repeat="action view/actions">
             <div class="formelementbutton">

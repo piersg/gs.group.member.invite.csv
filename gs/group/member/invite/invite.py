@@ -18,7 +18,7 @@ from Products.GSGroup.changebasicprivacy import radio_widget
 from utils import set_digest
 from invitefields import InviteFields
 from inviter import Inviter
-from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER
+from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER, INVITE_EXISTING_MEMBER
 
 class InviteEditProfileForm(PageForm):
     label = u'Invite a New Group Member'
@@ -115,14 +115,10 @@ this invitation.''' % self.groupInfo.name
             user = acl_users.get_userByEmail(toAddr)
             assert user, 'User for address <%s> not found' % toAddr
             userInfo = IGSUserInfo(user)
-            u = userInfo_to_anchor(userInfo)            
-            auditor = Auditor(self.siteInfo, self.groupInfo, 
-                self.adminInfo, userInfo)
-            inviter = Inviter(self.context, self.request, userInfo, 
-                                self.adminInfo, self.siteInfo, 
-                                self.groupInfo)
-                
+            u = userInfo_to_anchor(userInfo)
+            auditor, inviter = self.get_auditor_inviter(userInfo)
             if user_member_of_group(user, self.groupInfo):
+                auditor.info(INVITE_EXISTING_MEMBER, email)
                 self.status=u'''<li>The person with the email address %s 
 &#8213; %s &#8213; is already a member of %s.</li>'''% (e, u, g)
                 self.status = u'%s<li>No changes have been made.</li>' % \
@@ -140,6 +136,7 @@ this invitation.''' % self.groupInfo.name
             user = create_user_from_email(self.context, toAddr)
             userInfo = IGSUserInfo(user)
             self.add_profile_attributes(userInfo, data)
+            auditor, inviter = self.get_auditor_inviter(userInfo)
             inviteId = inviter.create_invitation(data, True)
             auditor.info(INVITE_NEW_USER, toAddr)
             inviter.send_notification(data['subject'], data['message'], 
@@ -165,4 +162,11 @@ given the email address %s.</li>\n''' % (u, e)
         changed = form.applyChanges(userInfo.user, fields, data)
         set_digest(userInfo, self.groupInfo, data)
 
+    def get_auditor_inviter(self, userInfo):
+        inviter = Inviter(self.context, self.request, userInfo, 
+                            self.adminInfo, self.siteInfo, 
+                            self.groupInfo)
+        auditor = Auditor(self.siteInfo, self.groupInfo, 
+                    self.adminInfo, userInfo)
+        return (auditor, inviter)
 

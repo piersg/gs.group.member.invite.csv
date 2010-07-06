@@ -1,6 +1,9 @@
 # coding=utf-8
 from operator import concat
+import md5
+from time import asctime
 from zope.contentprovider.tales import addTALNamespaceData
+from Products.XWFCore.XWFUtils import convert_int2b62
 from gs.profile.notify.interfaces import IGSNotifyUser
 from gs.profile.notify.adressee import Addressee, SupportAddressee
 from queries import InvitationQuery
@@ -26,14 +29,29 @@ class Inviter(object):
         return self.__invitationQuery
 
     def create_invitation(self, data, initial):
-        miscStr = reduce(concat, [unicode(i).encode('ascii', 'xmlcharrefreplace') 
-                                    for i in data.values()], '')
-        inviteId = invite_id(self.siteInfo.id, self.groupInfo.id, 
-            self.adminInfo.id, miscStr)
+        inviteId = self.new_invitation_id(data)
         self.invitationQuery.add_invitation(inviteId, self.siteInfo.id,
             self.groupInfo.id, self.userInfo.id, self.adminInfo.id, initial)
         return inviteId
 
+    def new_invitation_id(self, data):
+        miscStr = reduce(concat, [unicode(i).encode('ascii', 'xmlcharrefreplace') 
+                                    for i in data.values()], '')
+        istr = asctime() + self.siteInfo.id + \
+                unicode(self.siteInfo.name).encode('ascii', 'xmlcharrefreplace') +\
+                self.groupInfo.id + \
+                unicode(self.groupInfo.name).encode('ascii', 'xmlcharrefreplace') +\
+                self.userInfo.id + \
+                unicode(self.userInfo.name).encode('ascii', 'xmlcharrefreplace') +\
+                self.adminInfo.id + \
+                unicode(self.adminInfo.name).encode('ascii', 'xmlcharrefreplace') +\
+                miscStr
+        inum = long(md5.new(istr).hexdigest(), 16)
+        retval = str(convert_int2b62(inum))
+        assert retval
+        assert type(retval) == str
+        return retval
+    
     @property
     def contentProvider(self):
         if self.__contentProvider == None:
@@ -47,13 +65,16 @@ class Inviter(object):
         mfrom = fromAddr.strip()
         
         notifiedUser = IGSNotifyUser(self.userInfo)            
-        addrs = notifiedUser.get_addresses()
-        if not(addrs):
-            # A new user, without any verified email addresses.
+        try:
+            addrs = notifiedUser.get_addresses()
+        except AssertionError, assErr:
             addrs = [toAddr.strip()]
-            assert addrs, 'To address for a new user not set.'
+        assert addrs, 'To address for a new user not set.'
             
         for mto in addrs:
+            assert mto, 'No to address for %s (%s)' % \
+                (self.userInfo.name, self.userInfo.id)
+            assert mfrom, 'No from address' 
             msg = create_invitation_message(
                     Addressee(self.adminInfo, mfrom),
                     Addressee(self.userInfo, mto), 

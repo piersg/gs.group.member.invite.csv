@@ -1,7 +1,8 @@
 # coding=utf-8
-'''Create Users from CSV file.
-'''
+'''Create Users from CSV file.'''
+from csv import DictReader
 from zope.component import createObject
+from zope.formlib import form
 from zope.interface import implements, providedBy
 from zope.app.apidoc.interface import getFieldsInOrder
 from zope.schema import *
@@ -11,16 +12,15 @@ from zope.schema.interfaces import ITokenizedTerm, IVocabulary,\
 from zope.interface.common.mapping import IEnumerableMapping 
 from Products.Five import BrowserView
 from Products.XWFCore.odict import ODict
-from Products.XWFCore.CSV import CSVFile
-from Products.CustomUserFolder.CustomUser import CustomUser
 from Products.CustomUserFolder.interfaces import IGSUserInfo
+from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.GSGroupMember.groupmembership import *
 from gs.group.member.invite.utils import invite_to_groups
 import interfaces, utils
 from Products.GSProfile.interfaceCoreProfile import deliveryVocab
 from Products.GSProfile.emailaddress import NewEmailAddress, NotAValidEmailAddress,\
   DisposableEmailAddressNotAllowed, EmailAddressExists
-from zope.formlib import form
+from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER, INVITE_EXISTING_MEMBER
 
 import logging
 log = logging.getLogger('GSCreateUsersFromCSV')
@@ -44,7 +44,7 @@ class CreateUsersForm(BrowserView):
           getattr(interfaces, profileSchemaName)
         self.profileFields = form.Fields(self.profileSchema, render_context=False)
         
-        self.__admin = None
+        self.__admin = self.__subject = self.__message =  None
         
     @property
     def columns(self):
@@ -66,12 +66,29 @@ class CreateUsersForm(BrowserView):
         assert len(retval) > 0
         return retval
 
-    def get_admin(self):
+    @property
+    def adminInfo(self):
         if self.__admin == None:
             self.__admin = createObject('groupserver.LoggedInUser', 
                                         self.context)
             assert user_admin_of_group(self.__admin, self.groupInfo)
         return self.__admin
+
+    @property
+    def subject(self):
+        if self.__subject == None:
+            self.__subject = u'Invitation to join %s' % self.groupInfo.name
+        return self.__subject
+        
+    @property
+    def message(self):
+        if self.__message == None:
+            self.__message = u'''Hi there!
+
+Please accept this invitation to join %s. I have set everything up for
+you, so you can start participating in the group as soon as you follow
+the link below and accept this invitation.''' % self.groupInfo.name
+        return self.__message
         
     def process_form(self):
         form = self.context.REQUEST.form
@@ -81,28 +98,29 @@ class CreateUsersForm(BrowserView):
         if form.has_key('submitted'):
             result['message'] = u''
             result['error'] = False
-
-            admin = self.get_admin()
+            audit = Auditor()
             m = u'process_form: Adding users to %s (%s) on %s (%s) in'\
               u' bulk for %s (%s)' % \
               (self.groupInfo.name,   self.groupInfo.id,
                self.siteInfo.get_name(),    self.siteInfo.get_id(),
-               self.__admin.name, self.__admin.id)
+               self.adminInfo.name, self.adminInfo.id)
             log.info(m)
             
+            # Processing the CSV is done in three stages.
+            #   1. Process the columns.
             r = self.process_columns(form)
             result['message'] = '%s\n%s' % \
               (result['message'], r['message'])
             result['error'] = result['error'] or r['error']
             columns = r['columns']
-
+            #   2. Parse the file.
             if not result['error']:
                 r = self.process_csv_file(form, columns)
                 result['message'] = '%s\n%s' %\
                   (result['message'], r['message'])
                 result['error'] = result['error'] or r['error']
                 csvResults = r['csvResults']
-                
+            #   3. Interpret the data.
             if not result['error']:
                 r = self.process_csv_results(csvResults, columns, form['delivery'])
                 result['message'] = '%s\n%s' % \
@@ -122,6 +140,12 @@ class CreateUsersForm(BrowserView):
     def process_columns(self, form):
         '''Process the columns specified by the user.
         
+        DESCRIPTION
+          The administrator can create a CSV with the columns in any
+          order that he or she likes. However, the admin must specify
+          the columns seperately so we know what is entered. The job
+          of this method is to parse the column spec.
+        
         ARGUMENTS
           form:     The form that contains the column specifications.
 
@@ -132,10 +156,8 @@ class CreateUsersForm(BrowserView):
           A dictionary containing the following keys.
             error     bool    True if an error was encounter.
             message   str     A feedback message.
-            columns   dict    The columns the user specified. The 
-                              dictionary keys are the column indices as
-                              integers; the values are column IDs as 
-                              strings.
+            columns   list    The columns the user specified. The list 
+                              values are column IDs as strings.
             form      dict    The form that was passed as an argument.
         '''
         assert type(form) == dict
@@ -143,21 +165,16 @@ class CreateUsersForm(BrowserView):
         message = u''
         error = False
         
-        columns = {}
+        colDict = {}
         for key in form:
             if 'column' in key and form[key] != 'nothing':
                 foo, col = key.split('column')
                 i = ord(col) - 65
-                columns[i] = form[key]
-                
-        requiredColumns = [p for p in self.profileList if p.value.required]
-        notSpecified = []
-
-        providedColumns = columns.values()
-        for requiredColumn in requiredColumns:
-            if requiredColumn.token not in providedColumns:
-                notSpecified.append(requiredColumn)
-        if notSpecified:
+                colDict[i] = form[key]
+        columns = [colDict[i] for i in range(0, len(colDict))]
+        
+        unspecified = self.get_unspecified_columns(columns)
+        if unspecified:
             error = True
             colPlural = len(notSpecified) > 1 and 'columns have' \
               or 'column has'
@@ -175,12 +192,21 @@ class CreateUsersForm(BrowserView):
         assert result.has_key('message')
         assert type(result['message']) == unicode
         assert result.has_key('columns')
-        assert type(result['columns']) == dict
+        assert type(result['columns']) == list
         assert len(result['columns']) >= 2
         assert result.has_key('form')
         assert type(result['form']) == dict
         return result
-
+    
+    def get_unspecified_columns(self, columns):
+        '''Get the unspecified required columns'''
+        requiredColumns = [p for p in self.profileList if p.value.required]
+        unspecified = []
+        for requiredColumn in requiredColumns:
+            if requiredColumn.token not in columns:
+                unspecified.append(requiredColumn)
+        return unspecified
+    
     def process_csv_file(self, form, columns):
         '''Process the CSV file specified by the user.
         
@@ -202,24 +228,16 @@ class CreateUsersForm(BrowserView):
         
         message = u''
         error = False
-        if 'csvfile' not in form:
+        if 'csvfile' in form:
+            csvfile = form.get('csvfile')
+            csvResults = DictReader(csvfile, columns)
+        else:
             m = u'<p>There was no CSV file specified. Please specify a '\
               u'CSV file</p>'
             message = u'%s\n%s' % (message, m)
             error = True
             csvfile = None
             csvResults = None
-        else:
-            csvfile = form.get('csvfile')
-            try:
-                csvResults = CSVFile(csvfile, [str]*len(columns))
-            except AssertionError, x:
-                m = u'<p>The number of columns you have defined (%s) '\
-                  u'does not match the number of columns in the CSV file '\
-                  u'you provided.</p>' % len(columns)
-                error = True
-                message = u'%s\n%s' % (message, m)
-                csvResults = None
         result = {'error':      error,
                   'message':    message,
                   'csvResults': csvResults,
@@ -229,7 +247,7 @@ class CreateUsersForm(BrowserView):
         assert result.has_key('message')
         assert type(result['message']) == unicode
         assert result.has_key('csvResults')
-        # assert isinstance(result['csvResults'], CSVFile)
+        assert isinstance(result['csvResults'], DictReader)
         assert result.has_key('form')
         assert type(result['form']) == dict
         return result
@@ -260,7 +278,7 @@ class CreateUsersForm(BrowserView):
             error       bool      True if an error was encounter.
             message     str       A feedback message.
         '''
-        assert isinstance(csvResults, CSVFile)
+        assert isinstance(csvResults, DictReader)
         assert type(columns) == dict        
 
         errorMessage = u'<ul>\n'
@@ -273,14 +291,11 @@ class CreateUsersForm(BrowserView):
         skippedUserCount = 0
         skippedUserMessage = u'<ul>\n'
         rowCount = 0
-        
+        csvResults.next() # Skip the first row (the header)
         # Map the data into the correctly named columns.
-        for row in csvResults.mainData:
+        for row in csvResults:
             try:
-                fieldmap = {}
-                for column in columns:
-                    fieldmap[columns[column]] = row[column]
-                r = self.process_row(fieldmap, delivery)
+                r = self.process_row(row, delivery)
                 error = error or r['error']
             
                 if r['error']:
@@ -315,10 +330,7 @@ class CreateUsersForm(BrowserView):
           'Discrepancy between counts: %d + %d + %d + %d != %d' %\
             (existingUserCount, newUserCount, errorCount, skippedUserCount,
              rowCount)
-        assert rowCount == len(csvResults.mainData),\
-          'Row count != length of CSV main data: %s != %s' %\
-            (rowCount, len(csvResults.mainData))
-        
+                     
         message = u'<p>%d rows were processed.</p>\n<ul>\n'%\
           (rowCount + 1)
         message = u'%s<li>The first row was treated as a header, and '\
@@ -333,7 +345,7 @@ class CreateUsersForm(BrowserView):
               u'%s</strong> %s created, and added to %s.</a>\n'\
               u'<div class="disclosureShowHide" style="display:none;">'\
               u'%s</div></li>' % (message, newUserCount,  userUsers, 
-                wasWere, self.groupInfo.get_name(), newUserMessage)
+                wasWere, self.groupInfo.name, newUserMessage)
         
         existingUserMessage = u'%s</ul>\n' % existingUserMessage
         if existingUserCount > 0:
@@ -345,7 +357,7 @@ class CreateUsersForm(BrowserView):
               u'%s</strong> %s invited to join to %s.</a>\n'\
               u'<div class="disclosureShowHide" style="display:none;">'\
               u'%s</div></li>' % (message, existingUserCount,  userUsers, 
-                wasWere, self.groupInfo.get_name(), existingUserMessage)
+                wasWere, self.groupInfo.name, existingUserMessage)
         
         skippedUserMessage = u'%s</ul>\n' % skippedUserMessage
         if skippedUserCount > 0:
@@ -357,7 +369,7 @@ class CreateUsersForm(BrowserView):
               u'%s of %s %s skipped.</strong></a>\n'\
               u'<div class="disclosureShowHide" style="display:none;">'\
               u'%s</div></li>' % (message, skippedUserCount,  userUsers, 
-                self.groupInfo.get_name(), wasWere, skippedUserMessage)
+                self.groupInfo.name, wasWere, skippedUserMessage)
         
         errorMessage = u'%s</ul>\n' % errorMessage
         if error:
@@ -375,11 +387,11 @@ class CreateUsersForm(BrowserView):
         assert type(result['message']) == unicode
         return result
 
-    def process_row(self, fields, delivery):
+    def process_row(self, row, delivery):
         '''Process a row from the CSV file
         
         ARGUMENTS
-          fields     dict    The fields representing a row in the CSV file.
+          row        dict    The fields representing a row in the CSV file.
                              The column identifiers (alias profile 
                              attribute identifiers) form the keys.
           delivery   str     The message delivery settings for the new 
@@ -403,41 +415,37 @@ class CreateUsersForm(BrowserView):
                                   0 on error.
             user        instance  An instance of the CustomUser class.
         '''
-        assert type(fields) == dict
-        assert 'email' in fields
-        assert fields['email']
+        assert type(row) == dict
+        assert 'email' in row.keys()
+        assert row['email']
         
         user = None
         result = {}
         new = 0
         
-        email = fields['email'].strip()
+        email = row['email'].strip()
         
         emailChecker = NewEmailAddress(title=u'Email')
         emailChecker.context = self.context # --=mpj17=-- Legit?
         try:
             emailChecker.validate(email)
         except EmailAddressExists, e:
-            new = 1 # Possibly changed to 3 later
             user = self.acl_users.get_userByEmail(email)
             assert user, 'User for <%s> not found' % email
             userInfo = IGSUserInfo(user)
-
+            auditor, inviter = self.get_auditor_inviter(userInfo)
             if user_member_of_group(user, self.groupInfo):
                 new = 3
-                m = u'Skipped adding %s (%s) to the group %s (%s) as the '\
-                  u'user is already a member' % \
-                  (userInfo.name, user.id, 
-                   self.groupInfo.name, self.groupInfo.id)
-                log.info(m)
-                m = u'Skipped existing group member '\
-                  u'<a class="fn" href="%s">%s</a>' %\
-                  (userInfo.url, userInfo.name)
+                auditor.info(INVITE_EXISTING_MEMBER, email)
+                m = u'Skipped existing group member %s'% userInfo_to_anchor(userInfo)
             else:
-                m = u'Invited existing user <a class="fn" href="%s">%s</a>' %\
-                (userInfo.url, userInfo.name)
-                invite_to_groups(userInfo, self.get_admin(), self.groupInfo)
+                new = 1
+                inviteId = inviter.create_invitation(data, True)
+                auditor.info(INVITE_OLD_USER, email)
+                inviter.send_notification(self.subject, self.get_message, 
+                    inviteId, self.fromAddr, email)
                 self.set_delivery_for_user(userInfo, delivery)
+                m = u'Invited existing user %s' % userInfo_to_anchor(userInfo)
             error = False
         except DisposableEmailAddressNotAllowed, e:
             error = True
@@ -446,14 +454,14 @@ class CreateUsersForm(BrowserView):
             error = True
             m = self.error_msg(email, unicode(e))
         else:
-            userInfo = self.create_user(fields)
+            userInfo = self.create_user(row)
             user = userInfo.user
             new = 2
-            join_group(user, self.groupInfo)
+            # TODO: Fix
+            # join_group(user, self.groupInfo)
             self.set_delivery_for_user(userInfo, delivery)
             error = False
-            m = u'Created new user <a class="fn" href="%s">%s</a>' %\
-              (userInfo.url, userInfo.name)
+            m = u'Created new user ' % userInfo_to_anchor(userInfo)
             
         result = {'error':      error,
                   'message':    m,
@@ -485,8 +493,9 @@ class CreateUsersForm(BrowserView):
         # Add profile attributes 
         utils.enforce_schema(user, self.profileSchema)
         changed = form.applyChanges(user, self.profileFields, fields)
-        utils.send_add_user_notification(user, self.get_admin(),
-          self.groupInfo, u'')
+        # TODO: fix
+        #utils.send_add_user_notification(user, self.get_admin(),
+        #  self.groupInfo, u'')
         return userInfo
 
     def error_msg(self, email, msg):
@@ -517,6 +526,14 @@ class CreateUsersForm(BrowserView):
             userInfo.user.set_enableDigestByKey(self.groupInfo.id)
         elif delivery == 'web':
             userInfo.user.set_disableDeliveryByKey(self.groupInfo.id)
+
+    def get_auditor_inviter(self, userInfo):
+        inviter = Inviter(self.context, self.request, userInfo, 
+                            self.adminInfo, self.siteInfo, 
+                            self.groupInfo)
+        auditor = Auditor(self.siteInfo, self.groupInfo, 
+                    self.adminInfo, userInfo)
+        return (auditor, inviter)
 
 class ProfileList(object):
     implements(IVocabulary, IVocabularyTokenized)

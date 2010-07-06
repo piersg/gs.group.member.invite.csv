@@ -52,7 +52,39 @@ class IGSInvitationMessageContentProvider(IGSInvitationMessage):
           required=False,
           default="browser/templates/invitationmessagecontentprovider.pt")
 
-class IGSInviteSiteMembers(Interface):
+    message = Text(title=u'Invitation Message',
+        description=u'The message that appears at the top of the email '\
+            u'invitation to the new group member. The message will '\
+            u'appear before the two links that allow the user to accept '\
+            u'or reject the inviation.',
+        required=True)
+        
+class IGSInvitationFields(Interface): 
+    message = Text(title=u'Invitation Message',
+        description=u'The message that appears at the top of the email '\
+            u'invitation to the new group member. The message will '\
+            u'appear before the link that allows the member to accept '\
+            u'or reject the inviation.',
+        required=True)
+
+    fromAddr = Choice(title=u'Email From',
+      description=u'The email address that you want in the "From" '\
+        u'line in the invitation tat you send.',
+      vocabulary = 'EmailAddressesForLoggedInUser',
+      required=True)
+
+    delivery = Choice(title=u'Group Message Delivery Settings',
+      description=u'The message delivery settings for the new user',
+      vocabulary=deliveryVocab,
+      default='email')
+
+    subject = TextLine(title=u'Subject',
+        description=u'The subject line of the invitation message that '\
+            u'will be sent to the new member',
+        required=True)
+
+
+class IGSInviteSiteMembers(IGSInvitationFields):
     site_members = List(title=u'Site Members',
       description=u'The members of this site that are not a member of '\
         u'this group.',
@@ -60,10 +92,4 @@ class IGSInviteSiteMembers(Interface):
                       vocabulary='groupserver.InviteMembersNonGroupMembers'),
       unique=True,
       required=True)
-
-    delivery = Choice(title=u'Group Message Delivery Settings',
-      description=u'The message delivery settings for the new group '\
-        u'members.',
-      vocabulary=deliveryVocab,
-      default='email')
 

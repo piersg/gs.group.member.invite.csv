@@ -8,28 +8,46 @@ from Products.GSProfile.edit_profile import multi_check_box_widget
 from Products.GSGroup.changebasicprivacy import radio_widget
 from interfaces import IGSInviteSiteMembers
 from inviter import Inviter
+from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER
 
 class GSInviteSiteMembersForm(PageForm):
     label = u'Invite Site Members'
     pageTemplateFileName = 'browser/templates/invitesitemembers.pt'
     template = ZopeTwoPageTemplateFile(pageTemplateFileName)
-    form_fields = form.Fields(IGSInviteSiteMembers, render_context=False)
 
     def __init__(self, context, request):
         PageForm.__init__(self, context, request)
         self.siteInfo = createObject('groupserver.SiteInfo', context)
         self.groupInfo= createObject('groupserver.GroupInfo', context)
+        self.__formFields = None
 
-        self.form_fields['site_members'].custom_widget = \
-          multi_check_box_widget
-        self.form_fields['delivery'].custom_widget = radio_widget
+    @property
+    def form_fields(self):
+        if self.__formFields == None:
+            self.__formFields = form.Fields(IGSInviteSiteMembers,
+                render_context=False)
+            self.__formFields['site_members'].custom_widget = \
+                multi_check_box_widget
+            self.__formFields['delivery'].custom_widget = radio_widget
+        return self.__formFields
         
-    # --=mpj17=--
-    # The "form.action" decorator creates an action instance, with
-    #   "handle_invite" set to the success handler,
-    #   "handle_invite_action_failure" as the failure handler, and adds the
-    #   action to the "actions" instance variable (creating it if 
-    #   necessary).
+    def setUpWidgets(self, ignore_request=False):
+        data = {}
+        subject = u'An Invitation to Join %s' % self.groupInfo.name
+        data['subject'] = subject
+        
+        message = u'''Hi there!
+
+Please accept this invitation to join %s. Everything is 
+ready to go, so you can start participating in the group as soon as you 
+click the link below and accept this invitation.''' % self.groupInfo.name
+        data['message'] = message
+        
+        self.widgets = form.setUpWidgets(
+            self.form_fields, self.prefix, self.context,
+            self.request, form=self, data=data,
+            ignore_request=ignore_request)
+
     @form.action(label=u'Invite', failure='handle_invite_action_failure')
     def handle_invite(self, action, data):
         adminInfo = createObject('groupserver.LoggedInUser', self.context)
@@ -39,7 +57,7 @@ class GSInviteSiteMembersForm(PageForm):
                                     self.context, userId)
                                     
             inviter = Inviter(self.context, self.request, userInfo, 
-                        adminInfo, self.groupInfo)
+                        adminInfo, self.siteInfo, self.groupInfo)
             inviteId = inviter.create_invitation(data, False)
             auditor = Auditor(self.siteInfo, self.groupInfo, 
                         adminInfo, userInfo)
