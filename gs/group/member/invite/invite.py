@@ -118,7 +118,7 @@ this invitation.''' % self.groupInfo.name
             u = userInfo_to_anchor(userInfo)
             auditor, inviter = self.get_auditor_inviter(userInfo)
             if user_member_of_group(user, self.groupInfo):
-                auditor.info(INVITE_EXISTING_MEMBER, email)
+                auditor.info(INVITE_EXISTING_MEMBER, toAddr)
                 self.status=u'''<li>The person with the email address %s 
 &#8213; %s &#8213; is already a member of %s.</li>'''% (e, u, g)
                 self.status = u'%s<li>No changes have been made.</li>' % \
