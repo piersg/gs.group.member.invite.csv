@@ -45,6 +45,7 @@ class CreateUsersForm(BrowserView):
         self.profileFields = form.Fields(self.profileSchema, render_context=False)
 
         self.__admin = self.__subject = self.__message =  None
+        self.__fromAddr = None
 
     @property
     def columns(self):
@@ -75,6 +76,11 @@ class CreateUsersForm(BrowserView):
         return self.__admin
 
     @property
+    def fromAddr(self):
+        if self.__fromAddr == None:
+            self.__fromAddr = self.adminInfo.user.get_emailAddresses()[0]
+        return self.__fromAddr
+    @property
     def subject(self):
         if self.__subject == None:
             self.__subject = u'Invitation to join %s' % self.groupInfo.name
@@ -90,6 +96,17 @@ you, so you can start participating in the group as soon as you follow
 the link below and accept this invitation.''' % self.groupInfo.name
         return self.__message
         
+    @property
+    def preview_js(self):
+        msg = self.message.replace(' ','%20').replace('\n','%0A')
+        subj = self.subject.replace(' ', '%20')
+        uri = 'admin_invitation_message_preview.html?form.body=%s&amp;'\
+                'form.fromAddr=%s&amp;form.subject=%s' % \
+                (msg, self.fromAddr, subj)
+        js = "window.open(%s, 'Message  Preview', "\
+            "'height=360,width=730,menubar=no,status=no,tolbar=no')" %\
+            uri
+        return js
     def process_form(self):
         form = self.context.REQUEST.form
         result = {}
@@ -416,14 +433,14 @@ the link below and accept this invitation.''' % self.groupInfo.name
             user        instance  An instance of the CustomUser class.
         '''
         assert type(row) == dict
-        assert 'email' in row.keys()
-        assert row['email']
+        assert 'toAddr' in row.keys()
+        assert row['toAddr']
         
         user = None
         result = {}
         new = 0
         
-        email = row['email'].strip()
+        email = row['toAddr'].strip()
         
         emailChecker = NewEmailAddress(title=u'Email')
         emailChecker.context = self.context # --=mpj17=-- Legit?
@@ -483,10 +500,10 @@ the link below and accept this invitation.''' % self.groupInfo.name
         
     def create_user(self, fields):
         assert type(fields) == dict
-        assert 'email' in fields
-        assert fields['email']
+        assert 'toAddr' in fields
+        assert fields['toAddr']
         
-        email = fields['email'].strip()
+        email = fields['toAddr'].strip()
         
         user = utils.create_user_from_email(self.context, email)
         userInfo = IGSUserInfo(user)

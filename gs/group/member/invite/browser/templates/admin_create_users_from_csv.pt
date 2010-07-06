@@ -3,7 +3,20 @@
   xmlns:metal="http://xml.zope.org/namespaces/metal"
   metal:use-macro="context/@@groupserver_site_home_layout/page">
   <head>
-    <title metal:fill-slot="title">Create Members in Bulk</title>
+    <title metal:fill-slot="title">Invite New Group Members in Bulk</title>
+    <style type="text/css" metal:fill-slot="style">
+      select {
+        margin: 0px 0px 1.39em 1.39em;
+      }
+      #preview {
+        border: 1px solid #EDF1E4; 
+        padding: 0.69em; 
+        background: #5C791C none repeat scroll 0pt 0pt; 
+        margin-left: 1.39em; 
+        width: 33.87em; 
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
     <div metal:fill-slot="messages"
@@ -16,30 +29,44 @@
       <form enctype="multipart/form-data"  method="post" action="."
         tal:attributes="action request/URL" id="edit-profile">
         
-        <h1>Create Members in Bulk</h1>
+        <h1>Invite New Group Members in Bulk</h1>
         <p>
-          As a group administrator, you can create members in bulk, using 
-          a spreadsheet.
+          You can invite new members to join 
+          <span class="group" 
+            tal:content="view/groupInfo/name">this group</span>
+          by adding them in bulk, using a spreadsheet.
+          It is more complex, and less flexible, than when you 
+          <a href="#"
+            tal:attributes="href string:${view/groupInfo/url}/admin_join.html">issue
+             an invitation to a single person,</a>
+          but it is worth it if you have to invite a lot of people.
+          There are five steps to inviting new group members.
         </p>
         <h2>Step 1: Create the CSV File</h2>
-        <p>Create the CSV (comma-separated value) file &#8212; which will 
-          contain a list of all the members you wish to create &#8212; in a
-          spreadsheet program, such as Microsoft Excel, NeoOffice Calc, or
-          OpenOffice Calc. 
-          The file should contain at least two rows: a header, and a row 
-          for each member that you wish to add.
-          There needs to be at least two columns for each member: one for
-          each user's email address and another for the user's name.
+        <p>Create a CSV (comma-separated value) file.
+          The file needs to contain all the profile information of all
+          the members you wish to invite.
         </p>
+        <ul>
+          <li>The file must contain at least 
+            <strong>two rows:</strong> a header, and a
+            row for each member that you wish to add.</li>
+          <li> There must be at least two columns. First, an
+            <samp>Email to</samp> column will contains the email 
+            address that the invitation will be sent to.
+            Second a <samp>Name</samp> column will contains the name of
+            the person who is invited.</li>
+        </ul>
         <p>
-          Expert administrators can also add extra columns, but this is 
-          not necessary. 
-          Experts should also note that you should not create more than 
-          100 members at any one time, as strange timeout issues occur.
+          Expert administrators can also add extra columns, but this
+          is not necessary.
+          Experts should also note that you should not invite more
+          than 127 members at any one time, as strange timeout issues
+          can occur.
         </p>
         <h2>Step 2: Select the CSV File</h2>
         <p>
-          After saving the file in CSV format select it using the
+          Save the spreadsheet in CSV format, and select it using the
           selector below.
         </p>
         <label class="required"
@@ -48,46 +75,60 @@
         <input class="fileType" id="csvfile" name="csvfile" 
           type="file"  />
         <h2>Step 3: Set the Columns</h2>
-        <p>Now set the column headers. 
-          If you did not add any headers in Step 1, then the first two 
-          column headers should be Email Address and Name and
-          the other columns should be set to Unused.
+        <p>Now set the columns up.
+          The columns below <strong>must</strong> match the columns in
+          your spreadsheet.
         </p>
-        <div id="columns">
+        <div id="columns"
+          tal:define="shown string:display:block;;; hidden string:display:none;;;">
           <tal:block
             repeat="column view/columns">
-            <label for="#"
-              tal:attributes="for column/columnId"
-              tal:content="column/columnTitle">Stuff</label>
-            <select id="#" name="#" 
-              tal:define="n repeat/column/number"
-              tal:attributes="id column/columnId; name column/columnId">
-              <tal:block
-                repeat="option column/profileList">
-                <tal:block
-                  define="initial python:(n==1 and option.token == 'email') or (n==2 and option.token == 'fn')">
-                  <option 
-                    tal:condition="initial"
-                    selected="selected"
-                    tal:content="option/title"
-                    tal:define="m repeat/option/number"
-                    tal:attributes="value option/token"/>
-                  <option 
-                    tal:condition="not:initial"
-                    tal:content="option/title"
-                    tal:define="m repeat/option/number"
-                    tal:attributes="value option/token"/>
-                </tal:block>
-              </tal:block>
-              <option tal:condition="python:n&gt;2"
-                selected="selected" value="nothing">(Unused)</option>
-              <option tal:condition="python:n&lt;=2"
-                value="nothing">(Unused)</option>
-            </select>
+            <div class="column disclosureWidget"
+              tal:define="n repeat/column/number;">
+              <label for="#" class="disclosureButton"
+                tal:attributes="for column/columnId"
+                tal:content="column/columnTitle">Stuff</label>
+              <div class="disclosureShowHide"
+                tal:define="startTwo python:n&lt;=2;"
+                tal:attributes="style python:startTwo and shown or hidden;">
+                <select id="#" name="#" 
+                  tal:attributes="id column/columnId; name column/columnId">
+                  <tal:block
+                    repeat="option column/profileList">
+                    <tal:block define="initial python:(n==1 and option.token == 'toAddr') or (n==2 and option.token == 'fn')">
+                      <option 
+                        tal:condition="initial"
+                        selected="selected"
+                        tal:content="option/title"
+                        tal:define="m repeat/option/number"
+                        tal:attributes="value option/token"/>
+                      <option 
+                        tal:condition="not:initial"
+                        tal:content="option/title"
+                        tal:define="m repeat/option/number"
+                        tal:attributes="value option/token"/>
+                    </tal:block>
+                  </tal:block>
+                  <option tal:condition="startTwo"
+                    value="nothing">(Unused)</option>
+                  <option tal:condition="not:startTwo"
+                    selected="selected" value="nothing">(Unused)</option>
+                </select>
+              </div><!--disclosureShowHide-->
+            </div><!--disclosureWidget-->
           </tal:block>
-        </div><!--columns-->
+        </div><!--columns-->  
 
         <h2>Step 4: Set the Message Delivery Settings</h2>
+        <p>
+          By default, new members will receive an email every time
+          someone posts to 
+          <span class="group" 
+            tal:content="view/groupInfo/name">this group</span>.
+          However, you can change this so the new members receive a
+          daily digest of topics, or participate in the group using
+          the web only.
+        </p>
         <div class="value">
           <input id="delivery.0" class="radioType" type="radio" 
             value="email" name="delivery" checked="checked"/>
@@ -102,16 +143,21 @@
           <input id="delivery.2" class="radioType" type="radio" 
             value="web" name="delivery"/>
           <label class="radioLabel" for="delivery.2">Web only</label>
-        </div>
-        <h2>Step 5: Create the Users</h2>
+        </div><!--value-->
+        <h2>Step 5: Invite the Members</h2>
         <p>
-          Click the <samp class="button">Create</samp> button to
-          create the users specified in your CSV file.
+          Click the <samp class="button">Invite</samp> button to
+          invite the members specified in your CSV file.
+          Each new member will be sent an invitation to join the group
+          by email.
+        </p>
+        <p>
+          <a tal:attributes="onclick string:javascript:${view/preview_js}">foo</a>
         </p>
         <input type="hidden" id="submitted" name="submitted" 
           class="hidden" value=""/>
         <input type="submit" id="create" name="create" class="button"
-          value="Create"/>
+          value="Invite"/>
       </form>
     </div>
   </body>
