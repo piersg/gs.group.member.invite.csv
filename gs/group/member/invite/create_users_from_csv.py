@@ -15,6 +15,7 @@ from Products.XWFCore.odict import ODict
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.GSGroupMember.groupmembership import *
+from Products.GSProfile import interfaceSiteProfile as profileSchemas
 from gs.group.member.invite.utils import invite_to_groups
 import interfaces, utils
 from Products.GSProfile.interfaceCoreProfile import deliveryVocab
@@ -27,25 +28,24 @@ log = logging.getLogger('GSCreateUsersFromCSV')
 
 class CreateUsersForm(BrowserView):
     def __init__(self, context, request):
-        self.context = context
-        self.request = request
-        
+        BrowserView.__init__(self, context, request)
+
         self.siteInfo = createObject('groupserver.SiteInfo', context)
         self.groupInfo = createObject('groupserver.GroupInfo', context)
         self.profileList = ProfileList(context)
         self.acl_users = context.site_root().acl_users
-        
+
         site_root = context.site_root()
         assert hasattr(site_root, 'GlobalConfiguration')
         config = site_root.GlobalConfiguration
         self.profileSchemaName = profileSchemaName = \
           config.getProperty('profileInterface', 'IGSCoreProfile')
         self.profileSchema = profileSchema = \
-          getattr(interfaces, profileSchemaName)
+          getattr(profileSchemas, profileSchemaName)
         self.profileFields = form.Fields(self.profileSchema, render_context=False)
-        
+
         self.__admin = self.__subject = self.__message =  None
-        
+
     @property
     def columns(self):
         retval = []
@@ -551,9 +551,9 @@ class ProfileList(object):
         profileSchemaName = config.getProperty('profileInterface',
                                               'IGSCoreProfile')
         profileSchemaName = '%sAdminJoinCSV' % profileSchemaName
-        assert hasattr(interfaces, profileSchemaName), \
+        assert hasattr(profileSchemas, profileSchemaName), \
             'Interface "%s" not found.' % profileSchemaName
-        self.__schema = getattr(interfaces, profileSchemaName)
+        self.__schema = getattr(profileSchemas, profileSchemaName)
         
     def __iter__(self):
         """See zope.schema.interfaces.IIterableVocabulary"""
