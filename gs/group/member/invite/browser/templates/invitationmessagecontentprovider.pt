@@ -3,11 +3,11 @@
   xmlns:metal="http://xml.zope.org/namespaces/metal"
   tal:define="view options/view"
   tal:omit-tag="view/text">
-  <head tal:condition="not:view/text">
+<head tal:condition="not:view/text">
     <title tal:content="string:view/subject">
       Edit Profile
     </title>
-    <style type="text/css" tal:condition="view/preview">
+<style type="text/css" tal:condition="view/preview">
       * {
         font-family: monospace;
         font-size: 13px;
@@ -30,38 +30,28 @@
         padding-left: 1.39em;
       }
     </style>
-  </head>
-  <body tal:omit-tag="view/text">
-    <div id="preview" tal:condition="python:view.preview and not(view.text)">
-      <p>
+</head><body tal:omit-tag="view/text"><div id="preview" tal:condition="python:view.preview and not(view.text)"><p>
         Message Preview
         <a href="javascript:self.close()" id="close">Close</a>
-      </p>
-      <pre id="header">
+      </p><pre id="header">
 <span id="reply-to"><strong class="name">Reply-to:</strong> <span tal:content="view/supportAddr">user@domain</span></span>
 <span id="from"><strong class="name">From:</strong>  <span tal:content="view/fromAddr">user@domain</span></span>
 <span id="to"><strong class="name">To:</strong> <span tal:content="view/toAddr">user@domain</span></span>
 <span id="subject"><strong class="name">Subject:</strong> <span tal:content="view/subject">The Subject</span></span></pre>
-    </div>
-<p id="body" tal:omit-tag="view/text" tal:content="structure view/body">
+</div><p id="body" tal:omit-tag="view/text" tal:content="structure view/body">
       Message body goes here
     </p>
     
-<p id="linkText" tal:omit-tag="view/text">Click on the following link to accept or decline this invitation:
-    </p>
-    <pre tal:omit-tag="view/text" 
+<p id="linkText" tal:omit-tag="view/text">Click on the following link to accept or decline this invitation:</p><pre tal:omit-tag="view/text" 
       tal:define="uri string:${view/siteInfo/url}/r/rsvp/${view/invitationId};
         example python:view.invitationId=='example';
         jsUri string:javascript:window.open('${uri}');;">
+        
     <a href="#" tal:omit-tag="view/text"
       tal:condition="not:example"
       tal:attributes="href uri"
-      tal:content="uri">link text</a>
-    <a href="#" tal:omit-tag="view/text"
+      tal:content="uri">link text</a><a href="#" tal:omit-tag="view/text"
       tal:condition="example"
       tal:attributes="onclick jsUri"
-      tal:content="uri">link text</a>
-    </pre>
-  </body>
-</html>
+      tal:content="uri">link text</a></pre></body></html>
 

@@ -1,5 +1,8 @@
 # coding=utf-8
-'''Create Users from CSV file.'''
+'''Create Users from CSV file.
+
+This may appear to be a big scary module, but do not worry. Most of it
+is devoted to writing the error message.'''
 from csv import DictReader
 from zope.component import createObject
 from zope.formlib import form
@@ -18,10 +21,15 @@ from Products.GSGroupMember.groupmembership import *
 from Products.GSProfile import interfaceSiteProfile as profileSchemas
 from gs.group.member.invite.utils import invite_to_groups
 import interfaces, utils
+from Products.GSProfile.utils import create_user_from_email, \
+    enforce_schema
 from Products.GSProfile.interfaceCoreProfile import deliveryVocab
-from Products.GSProfile.emailaddress import NewEmailAddress, NotAValidEmailAddress,\
-  DisposableEmailAddressNotAllowed, EmailAddressExists
-from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER, INVITE_EXISTING_MEMBER
+from Products.GSProfile.emailaddress import NewEmailAddress, \
+    NotAValidEmailAddress, DisposableEmailAddressNotAllowed, \
+    EmailAddressExists
+from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER, \
+    INVITE_EXISTING_MEMBER
+from inviter import Inviter
 
 import logging
 log = logging.getLogger('GSCreateUsersFromCSV')
@@ -115,7 +123,6 @@ the link below and accept this invitation.''' % self.groupInfo.name
         if form.has_key('submitted'):
             result['message'] = u''
             result['error'] = False
-            audit = Auditor()
             m = u'process_form: Adding users to %s (%s) on %s (%s) in'\
               u' bulk for %s (%s)' % \
               (self.groupInfo.name,   self.groupInfo.id,
@@ -296,7 +303,8 @@ the link below and accept this invitation.''' % self.groupInfo.name
             message     str       A feedback message.
         '''
         assert isinstance(csvResults, DictReader)
-        assert type(columns) == dict        
+        assert type(columns) == list, \
+          'Got a %s as columns, expected a list' % type(columns)
 
         errorMessage = u'<ul>\n'
         errorCount = 0
@@ -312,7 +320,7 @@ the link below and accept this invitation.''' % self.groupInfo.name
         # Map the data into the correctly named columns.
         for row in csvResults:
             try:
-                r = self.process_row(row, delivery)
+                r = self.process_row(row, columns, delivery)
                 error = error or r['error']
             
                 if r['error']:
@@ -366,12 +374,13 @@ the link below and accept this invitation.''' % self.groupInfo.name
         
         existingUserMessage = u'%s</ul>\n' % existingUserMessage
         if existingUserCount > 0:
-            userUsers = existingUserCount == 1 and 'user' or 'users'
+            userUsers = existingUserCount == 1 and 'person' or 'people'
             wasWere = existingUserCount == 1 and 'was' or 'were'
             message = u'%s<li id="existingUserInfo"'\
               u'class="disclosureWidget">'\
-              u'<a href="#" class="disclosureButton"><strong>%d existing '\
-              u'%s</strong> %s invited to join to %s.</a>\n'\
+              u'<a href="#" class="disclosureButton">%d %s that '\
+              u'<strong>already had a profile</strong> %s invited to '\
+              u'join to %s.</a>\n'\
               u'<div class="disclosureShowHide" style="display:none;">'\
               u'%s</div></li>' % (message, existingUserCount,  userUsers, 
                 wasWere, self.groupInfo.name, existingUserMessage)
@@ -404,7 +413,7 @@ the link below and accept this invitation.''' % self.groupInfo.name
         assert type(result['message']) == unicode
         return result
 
-    def process_row(self, row, delivery):
+    def process_row(self, row, columns, delivery):
         '''Process a row from the CSV file
         
         ARGUMENTS
@@ -457,12 +466,12 @@ the link below and accept this invitation.''' % self.groupInfo.name
                 m = u'Skipped existing group member %s'% userInfo_to_anchor(userInfo)
             else:
                 new = 1
-                inviteId = inviter.create_invitation(data, True)
+                inviteId = inviter.create_invitation(row, False)
                 auditor.info(INVITE_OLD_USER, email)
-                inviter.send_notification(self.subject, self.get_message, 
+                inviter.send_notification(self.subject, self.message, 
                     inviteId, self.fromAddr, email)
                 self.set_delivery_for_user(userInfo, delivery)
-                m = u'Invited existing user %s' % userInfo_to_anchor(userInfo)
+                m = u'%s has an existing profile' % userInfo_to_anchor(userInfo)
             error = False
         except DisposableEmailAddressNotAllowed, e:
             error = True
@@ -474,8 +483,11 @@ the link below and accept this invitation.''' % self.groupInfo.name
             userInfo = self.create_user(row)
             user = userInfo.user
             new = 2
-            # TODO: Fix
-            # join_group(user, self.groupInfo)
+            auditor, inviter = self.get_auditor_inviter(userInfo)
+            inviteId = inviter.create_invitation(row, True)
+            auditor.info(INVITE_NEW_USER, email)
+            inviter.send_notification(self.subject, self.message, 
+                inviteId, self.fromAddr, email)
             self.set_delivery_for_user(userInfo, delivery)
             error = False
             m = u'Created new user ' % userInfo_to_anchor(userInfo)
@@ -505,16 +517,12 @@ the link below and accept this invitation.''' % self.groupInfo.name
         
         email = fields['toAddr'].strip()
         
-        user = utils.create_user_from_email(self.context, email)
+        user = create_user_from_email(self.context, email)
         userInfo = IGSUserInfo(user)
-        # Add profile attributes 
-        utils.enforce_schema(user, self.profileSchema)
+        enforce_schema(userInfo.user, self.profileSchema)
         changed = form.applyChanges(user, self.profileFields, fields)
-        # TODO: fix
-        #utils.send_add_user_notification(user, self.get_admin(),
-        #  self.groupInfo, u'')
         return userInfo
-
+        
     def error_msg(self, email, msg):
         return\
           u'Did not create a user for the email address '\

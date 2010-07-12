@@ -9,12 +9,10 @@
         margin: 0px 0px 1.39em 1.39em;
       }
       #preview {
-        border: 1px solid #EDF1E4; 
+        border: 1px solid #5C791C;
         padding: 0.69em; 
-        background: #5C791C none repeat scroll 0pt 0pt; 
+        background: #EDF1E4 none repeat scroll 0pt 0pt; 
         margin-left: 1.39em; 
-        width: 33.87em; 
-        cursor: pointer;
       }
     </style>
   </head>
@@ -152,8 +150,21 @@
           by email.
         </p>
         <p>
-          <a tal:attributes="onclick string:javascript:${view/preview_js}">foo</a>
+          Each member will be sent the  following message.
         </p>
+        <div id="preview">
+          <pre tal:define="text python:False;
+              preview python:True;
+              text python:True;
+              fromAddr string:foo;
+              toAddr string:bar;
+              supportAddr string:wibble;
+              subject string:Invitation to Join ${view/groupInfo/name};
+              body view/message;"
+            tal:content="structure provider:groupserver.InvitationMessage">
+            Preview
+          </pre>
+        </div>
         <input type="hidden" id="submitted" name="submitted" 
           class="hidden" value=""/>
         <input type="submit" id="create" name="create" class="button"
