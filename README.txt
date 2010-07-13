@@ -51,10 +51,10 @@ Invite New Member
 The most commonly used invitation page is used to invite a single person
 to join a group. This page allows the administrator to do the following.
 
-1. Create a complete profile for the new member, including an email
+#. Create a complete profile for the new member, including an email
    address.
-   
-1. Customises the message that is sent in the invitation.
+
+#. Customises the message that is sent in the invitation.
 
 If the email address matches a person who already has a profile, then
 the person is just sent an invitation; the profile is left as it was.
@@ -82,10 +82,10 @@ already has a profile.
 Having churned through all the rows, the page then collates the results
 into four groups:
 
-1. People who were skipped,
-1. People who had existing profiles and were invited,
-1. People who had a profile created and were invited,
-1. Rows that had errors.
+#. People who were skipped,
+#. People who had existing profiles and were invited,
+#. People who had a profile created and were invited,
+#. Rows that had errors.
 
 Sending invitations in bulk is nasty because of all the edge cases,
 and all the parsing, and all the collation.
