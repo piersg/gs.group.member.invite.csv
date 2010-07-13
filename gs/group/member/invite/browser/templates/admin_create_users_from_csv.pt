@@ -146,11 +146,8 @@
         <p>
           Click the <samp class="button">Invite</samp> button to
           invite the members specified in your CSV file.
-          Each new member will be sent an invitation to join the group
-          by email.
-        </p>
-        <p>
-          Each member will be sent the  following message.
+          Each new member will be sent the following invitation message.
+          (The URL itself will be different for each new member.)
         </p>
         <div id="preview">
           <pre tal:define="text python:False;
