@@ -1,6 +1,23 @@
+.. sectnum::
+
 =======================
 Testing for Invitations
 =======================
+
+:Authors: Michael JasonSmith
+:Contact: Michael JasonSmith <mpj17@onlinegroups.net>
+:Date: 2010-07-13
+:Organization: `GroupServer.org <http://groupserver.org>`_
+:Copyright: This document is licensed under a  
+  `Creative Commons Attribution-Share Alike 3.0 New Zealand License
+  <http://creativecommons.org/licenses/by-sa/3.0/nz/>`_ by 
+  `OnlineGroups.Net <http://onlinegroups.net>`_.
+
+There are three pages that can be used to invite people to join a
+group. From simplest to most complex: `Invite Site Member`_, `Invite New
+Member`_ and `Send Invitations in Bulk`_. There are two pages that are
+used to respond to the invitation: `Existing Member Invitation Response`_
+and `New Member Invitation Response`_.
 
 Invite Site Member
 ==================
@@ -9,37 +26,53 @@ Invite Site Member
 * Group members are not listed on the form
 * Invited members are sent an invitation
 
-  + Invitations are listed on the *Profile* page
-  + Invitations go to the *existing* member invitation page.
+  + Invitations go to the `Existing Member Invitation Response`_ page.
 
 Existing Member Invitation Response
 -----------------------------------
 
-+ Invitations can be accepted
-  
-  - Administrators are informed of the new group member
-  - New group member gets the `add_group` message
-  - New group member is redirected to the group
+* A link to the invitation page should be shown on the Profile page
+  (see `Ticket 347 <https://projects.iopen.net/groupserver/ticket/347>`_)
 
-+ Invitations can be rejected
-
-  - Administrators are informed of the rejection
+* Invitations can be accepted
   
-Invite a New Member
+  + Administrators are informed of the new group member
+    (see `Ticket 410 <https://projects.iopen.net/groupserver/ticket/410>`_)
+  
+  + New group member gets the `add_group` message
+    (see `Ticket 303 <https://projects.iopen.net/groupserver/ticket/303>`_)
+   
+  + New group member is redirected to the group
+  
+  + If *Moderate new members* is on 
+  
+    - Administrators are not moderated
+      (see `Ticket 235 <https://projects.iopen.net/groupserver/ticket/235>`_)
+
+    - New members are moderated
+
+* Invitations can be rejected
+
+  + Administrators are informed of the rejection
+  + Rejection is logged
+    (see `Ticket 278 <https://projects.iopen.net/groupserver/ticket/278>`_)
+  
+Invite New Member
 ===================
 
 * Required attributes are listed
+* Only email addresses can be entered for the email address
+  (see `Ticket 325 <https://projects.iopen.net/groupserver/ticket/325>`_)
 * Message editable
 
-  - Preview shows the edited message
-  - Example invitation link is clickable
-  - Example invitation link goes to the *Example Invitation* page
+  + Preview shows the edited message
+  + Example invitation link is clickable
+  + Example invitation link goes to the *Example Invitation* page
   
 * Existing **group** members are *not* sent an invitation
 * Existing **site** members are sent an invitation
 
   + Invitation message is the same as what was set in the *Invite* page
-  + Invitations are listed on the *Profile* page
   + Invitations go to the `Existing Member Invitation Response`_ page
 
 * New members are sent an invitation
@@ -49,18 +82,24 @@ Invite a New Member
 
 New Member Invitation Response
 ------------------------------
-  
 
 * Administrator's biography is shown
 * Group statistics are shown
 * Invitations can be accepted
 
+  + Admnistrators are informed of the acceptance 
+    (see `Ticket 410 <https://projects.iopen.net/groupserver/ticket/410>`_)
+  + Acceptance is logged
+  + Email address is verified
   + Password is set
   + New member is redirected to the group
   
 * Invitations can be rejected
 
-  + Data is deleted
+  + Administrators are informed of the rejection
+  + Rejection is logged 
+    (see `Ticket 278 <https://projects.iopen.net/groupserver/ticket/278>`_)
+  + User is deleted
   + Non-member is shown a page
 
 Send Invitations in Bulk
@@ -69,17 +108,20 @@ Send Invitations in Bulk
 * Number of possible columns match the number of profile attributes plus
   email
 * Columns with required attributes are disclosed
-* Existing **group** members are *not* sent an invitation
-  
-  + Listed in the result-message
-  
-* Existing **site** members are sent an invitation
+* First row of the CSV is ignored
+* All the other rows are processed
 
-  + Listed in the result-message
-  + Invitation goes to the `Existing Member Invitation Response`_ page
-  
-* New members are sent an invitation
+  + Existing **group** members are *not* sent an invitation
+    
+    - Listed in the result-message
+    
+  + Existing **site** members are sent an invitation
 
-  + Listed in the result-message
-  + Invitations go to the `New Member Invitation Response`_ page
+    - Listed in the result-message
+    - Invitation goes to the `Existing Member Invitation Response`_ page
+    
+  + **New** members are sent an invitation
+
+    - Listed in the result-message
+    - Invitations go to the `New Member Invitation Response`_ page
 
