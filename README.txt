@@ -1,6 +1,6 @@
 .. sectnum::
 
-=============
+============
 Introduction
 ============
 
@@ -31,7 +31,7 @@ Pages
 There are three pages used for issuing invitations:
 
 * `Invite Site Member`_
-* `Invite New Member `_ and
+* `Invite New Member`_ and
 * `Send Invitations in Bulk`_
 
 All the pages for issuing an invitation are located in the group, and
