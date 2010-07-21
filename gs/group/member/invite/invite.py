@@ -1,8 +1,12 @@
 # coding=utf-8
 '''The form that allows an admin to invite a new person to join a group.'''
+try:
+    from five.formlib.formbase import PageForm
+except ImportError:
+    from Products.Five.formlib.formbase import PageForm
+    
 from zope.component import createObject
 from zope.formlib import form
-from Products.Five.formlib.formbase import PageForm
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
