@@ -1,0 +1,35 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:tal="http://xml.zope.org/namespaces/tal"
+  xmlns:metal="http://xml.zope.org/namespaces/metal"
+  metal:use-macro="context/@@groupserver_layout/page">
+  <head>
+    <title metal:fill-slot="title">
+      <span tal:replace="string:Invite Members: ${view/groupInfo/name}: ${view/siteInfo/name}">
+        Invite Members
+      </span>
+    </title>
+  </head>
+  <body>
+    <tal:block metal:fill-slot="body">
+      <h1>Invite Members</h1>
+      <p>There are three ways to invite someone to join
+        <span class="group"
+          tal:content="view/groupInfo/name">this group</span>:</p>
+      <ol id="sitemembers">
+        <li><a href="admin_join.html"><strong>Enter the details</strong>
+            of a new member,</a></li>
+        <li><a href="admin_invite_site_members.html"><strong>Select</strong>
+            existing site members,</a> or</li>
+        <li><a href="admin_join_csv.html"><strong>Upload the details</strong>
+            of multiple members</a> using a CSV file.</li>
+      </ol>
+      <p>
+        You can also 
+        <a id="reg_link"
+          tal:attributes="href string:${view/groupInfo/url}/admin_remote_request_register.html"
+          href="#"><strong>add a registration box</strong> to a site.</a>
+      </p>
+    </tal:block>
+  </body>
+</html>
+

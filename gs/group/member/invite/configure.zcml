@@ -29,6 +29,13 @@
     class=".invitationmessage.InvitationMessage"
     permission="zope2.ManageUsers"/>
 
+  <browser:page
+    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    name="admin_invite.html"
+    class=".admininvite.AdminInviteView"
+    template="browser/templates/invite.html"
+    permission="zope2.ManageUsers"/>
+
   <interface 
     interface=".interfaces.IGSInvitationMessageContentProvider"
     type="zope.contentprovider.interfaces.ITALNamespaceData"/>
