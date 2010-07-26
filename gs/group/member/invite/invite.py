@@ -2,7 +2,10 @@
 '''The form that allows an admin to invite a new person to join a group.'''
 from zope.component import createObject
 from zope.formlib import form
-from Products.Five.formlib.formbase import PageForm
+try:
+    from five.formlib.formbase import PageForm
+except ImportError:
+    from Products.Five.formlib.formbase import PageForm
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
@@ -101,6 +104,8 @@ this invitation.''' % self.groupInfo.name
         return self.inviteFields.get_profile_widgets(self.widgets)    
         
     def actual_handle_add(self, action, data):
+        userInfo = None
+        
         acl_users = self.context.acl_users
         toAddr = data['toAddr'].strip()
         
@@ -141,7 +146,6 @@ this invitation.''' % self.groupInfo.name
             auditor.info(INVITE_NEW_USER, toAddr)
             inviter.send_notification(data['subject'], data['message'], 
                 inviteId, data['fromAddr'], data['toAddr'])
-            
             u = userInfo_to_anchor(userInfo)
             self.status = u'''<li>A profile for %s has been created, and
 given the email address %s.</li>\n''' % (u, e)
@@ -149,6 +153,7 @@ given the email address %s.</li>\n''' % (u, e)
               u'join %s.</li>\n' % (self.status, u, g)
         assert user, 'User not created or found'
         assert self.status
+        return userInfo
         
     def handle_add_action_failure(self, action, data, errors):
         if len(errors) == 1:
