@@ -31,8 +31,19 @@ Invite Site Member
 Existing Member Invitation Response
 -----------------------------------
 
-* A link to the invitation page should be shown on the Profile page
-  (see `Ticket 347 <https://projects.iopen.net/groupserver/ticket/347>`_)
+* A link to the invitation page should be shown on the *Profile* page
+  (see `Ticket 347 <https://projects.iopen.net/groupserver/ticket/347>`_).
+
+* The invited members are listed on the *Manage Members* page.
+
+  + An invitation can be withdrawn by the group administrator
+    (see `Ticket 435 <https://projects.iopen.net/groupserver/ticket/435>`_).
+    
+    - The member is no longer listed on the *Manage Members* page.
+    
+    - The group is no longer listed on the *Profile* page of the member. 
+    
+    - Following the invitation goes to the *Invitation Withdrawn* page.
 
 * Invitations can be accepted
   
