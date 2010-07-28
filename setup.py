@@ -7,15 +7,22 @@ version = get_version()
 
 setup(name='gs.group.member.invite',
     version=version,
-    description="The group-related pages that are required for "\
-        "administrator-initiated sign up (registration)",
+    description="The pages that are required to invite people to "\
+      "join GroupServer groups.",
     long_description=open("README.txt").read() + "\n" +
                     open(os.path.join("docs", "HISTORY.txt")).read(),
-    # Get more strings from http://www.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        "Programming Language :: Python",
+      "Development Status :: 4 - Beta",
+      "Environment :: Web Environment",
+      "Framework :: Zope2",
+      "Intended Audience :: Developers",
+      "License :: Other/Proprietary License",
+      "Natural Language :: English",
+      "Operating System :: POSIX :: Linux"
+      "Programming Language :: Python",
+      "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    keywords='sign up, registration, profile, user, join',
+    keywords='sign up, registration, profile, user, join, invitation',
     author='Michael JasonSmith',
     author_email='mpj17@onlinegroups.net',
     url='http://groupserver.org',
@@ -26,6 +33,7 @@ setup(name='gs.group.member.invite',
     zip_safe=False,
     install_requires=[
         'setuptools',
+        'gs.profile.notify',
         'Products.GSProfile',
         # -*- Extra requirements: -*-
     ],

@@ -17,8 +17,8 @@ an administrator to *just add* members? Good question.
 
 For new members the invitation does two things in addition to joining
 a person to a group. First, it **verifies** that the email address
-works. Unless the address is verified messages will not be sent to
-it. Second, the Respond page allows the member to set a password,
+works. GroupServer will only be send messages to verified
+addresses. Second, the Respond page allows the member to set a password,
 so he or she is able to log in.
 
 Even for people that already have profiles, the invitations also allow
