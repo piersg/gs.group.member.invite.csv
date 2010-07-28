@@ -19,8 +19,6 @@ from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.GSGroupMember.groupmembership import *
 from Products.GSProfile import interfaceSiteProfile as profileSchemas
-from gs.group.member.invite.utils import invite_to_groups
-import interfaces, utils
 from Products.GSProfile.utils import create_user_from_email, \
     enforce_schema
 from Products.GSProfile.interfaceCoreProfile import deliveryVocab
