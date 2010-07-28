@@ -62,12 +62,17 @@ Existing Member Invitation Response
 
     - New members are moderated
 
-* Invitations can be rejected
+  + Following the invitation link after being accepted will got to the
+    *Invitation Responded* page.
+
+* Invitations can be declined
 
   + Administrators are informed of the rejection
   + Rejection is logged
     (see `Ticket 278 <https://projects.iopen.net/groupserver/ticket/278>`_)
-  
+  + Following the invitation link after being declined will got to the
+    *Invitation Responded* page.
+
 Invite New Member
 ===================
 
@@ -104,14 +109,18 @@ New Member Invitation Response
   + Email address is verified
   + Password is set
   + New member is redirected to the group
-  
-* Invitations can be rejected
+  + Following the invitation link after being accepted will got to the
+    *Invitation Responded* page.
+
+* Invitations can be declined
 
   + Administrators are informed of the rejection
   + Rejection is logged 
     (see `Ticket 278 <https://projects.iopen.net/groupserver/ticket/278>`_)
   + User is deleted
   + Non-member is shown a page
+  + Following the invitation link after being declined will got to the
+    *Invitation Responded* page.
 
 Send Invitations in Bulk
 ========================

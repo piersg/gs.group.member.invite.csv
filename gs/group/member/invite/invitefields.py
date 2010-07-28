@@ -9,6 +9,7 @@ class InviteFields(object):
         self.__profileFieldIds = self.__profileFields =  None
         self.__adminWidgets = self.__adminInterface = None
         self.__widgetNames = self.__config = None
+        self.__profileInterfaceName = None
 
     @property
     def config(self):
@@ -21,12 +22,30 @@ class InviteFields(object):
     @property
     def adminInterface(self):
         if self.__adminInterface == None:
-            adminInterfaceName = '%sAdminJoinSingle' %\
-                self.config.getProperty('profileInterface', 'IGSCoreProfile')
+            adminInterfaceName = '%sAdminJoinSingle' % \
+                                    self.profileInterfaceName
             assert hasattr(interfaces, adminInterfaceName), \
                 'Interface "%s" not found.' % adminInterfaceName
             self.__adminInterface = getattr(interfaces, adminInterfaceName)
         return self.__adminInterface
+    
+    @property
+    def profileInterfaceName(self):
+        if self.__profileInterfaceName == None:
+            ifName = self.config.getProperty('profileInterface', 'IGSCoreProfile')
+            # --=mpj17=-- Sometimes profileInterface is set to ''
+            ifName = (ifName and ifName) or 'IGSCoreProfile'
+            assert hasattr(interfaces, ifName), \
+                'Interface "%s" not found.' % adminInterfaceName
+            self.__profileInterfaceName = ifName
+        return self.__profileInterfaceName
+    
+    @property
+    def profileInterface(self):
+        if self.__interface == None:
+            self.__interface = getattr(interfaces, 
+                                self.profileInterfaceName)
+        return self.__interface
         
     def get_admin_widgets(self, widgets):
         '''These widgets are specific to the Invite a New Member 
@@ -40,16 +59,6 @@ class InviteFields(object):
         assert self.__adminWidgets
         return self.__adminWidgets
 
-    @property
-    def profileInterface(self):
-        if self.__interface == None:
-            interfaceName =\
-                self.config.getProperty('profileInterface', 'IGSCoreProfile')
-            assert hasattr(interfaces, interfaceName), \
-                'Interface "%s" not found.' % interfaceName
-            self.__interface = getattr(interfaces, interfaceName)
-        return self.__interface
-        
     @property
     def profileFieldIds(self):
         if self.__profileFields == None:
