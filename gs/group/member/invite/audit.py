@@ -1,17 +1,13 @@
 # coding=utf-8
 from pytz import UTC
 from datetime import datetime
-from xml.sax.saxutils import escape as xml_escape
-from base64 import b64decode
 from zope.component import createObject
 from zope.component.interfaces import IFactory
 from zope.interface import implements, implementedBy
-from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.GSGroup.groupInfo import groupInfo_to_anchor
 from Products.GSAuditTrail import IAuditEvent, BasicAuditEvent, \
   AuditQuery, event_id_from_data
-from Products.XWFCore.XWFUtils import munge_date
 
 SUBSYSTEM = 'gs.group.member.invite'
 import logging
@@ -21,6 +17,7 @@ UNKNOWN                 = '0'
 INVITE_NEW_USER         = '1'
 INVITE_OLD_USER         = '2'
 INVITE_EXISTING_MEMBER  = '3'
+WITHDRAW_INVITATION     = '4'
 
 class AuditEventFactory(object):
     implements(IFactory)
@@ -44,6 +41,9 @@ class AuditEventFactory(object):
             event = InviteExistingMemberEvent(context, event_id, date, 
               userInfo, instanceUserInfo, siteInfo, groupInfo,
               instanceDatum, supplementaryDatum)
+        elif (code == WITHDRAW_INVITATION):
+            event = WithdrawInvitationEvent(context, event_id, date, 
+              userInfo, instanceUserInfo, siteInfo, groupInfo)
         else:
             event = BasicAuditEvent(context, event_id, UNKNOWN, date, 
               userInfo, instanceUserInfo, siteInfo, groupInfo, 
@@ -167,6 +167,43 @@ class InviteExistingMemberEvent(BasicAuditEvent):
             u' %s to join %s.</span>' %\
             (cssClass, userInfo_to_anchor(self.instanceUserInfo),
             groupInfo_to_anchor(self.groupInfo))
+        if ((self.instanceUserInfo.id != self.userInfo.id)
+            and not(self.userInfo.anonymous)):
+            retval = u'%s &#8212; %s' %\
+              (retval, userInfo_to_anchor(self.userInfo))
+        return retval
+
+class WithdrawInvitationEvent(BasicAuditEvent):
+    """Administrator Withdrawing an Invitation 
+
+        Invitations are withdrawn based on userID, so there is
+        no instanceDatum or supplementaryDatum required here.
+    """
+    implements(IAuditEvent)
+
+    def __init__(self, context, id, d, userInfo, instanceUserInfo, 
+        siteInfo, groupInfo):
+        
+        BasicAuditEvent.__init__(self, context, id, 
+          WITHDRAW_INVITATION, d, userInfo, instanceUserInfo, 
+          siteInfo, groupInfo, None, None, SUBSYSTEM)
+    
+    def __str__(self):
+        retval = u'Administrator %s (%s) withdrew the invitation '\
+          u'to join %s (%s) on %s (%s) from %s (%s)' % \
+          (self.userInfo.name, self.userInfo.id,
+          self.groupInfo.name, self.groupInfo.id,
+          self.siteInfo.name, self.siteInfo.id,
+          self.instanceUserInfo.name, self.instanceUserInfo.id,)
+        return retval.encode('ascii', 'ignore')
+
+    @property
+    def xhtml(self):
+        cssClass = u'audit-event profile-invite-event-%s' % self.code
+        retval = u'<span class="%s">Withdrew the invitation to '\
+            u'join %s from %s.</span>' %\
+            (cssClass, groupInfo_to_anchor(self.groupInfo),
+             userInfo_to_anchor(self.instanceUserInfo))
         if ((self.instanceUserInfo.id != self.userInfo.id)
             and not(self.userInfo.anonymous)):
             retval = u'%s &#8212; %s' %\

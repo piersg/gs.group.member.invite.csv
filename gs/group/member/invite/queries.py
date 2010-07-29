@@ -154,7 +154,7 @@ class InvitationQuery(object):
         assert userId
         assert type(status) == bool
 
-        d = datetime.utcnow().replace(tzinfo=pytz.utc)        
+        d = datetime.utcnow().replace(tzinfo=pytz.utc)
         uit = self.userInvitationTable
         c = sa.and_(
           uit.c.site_id  == siteId, 
@@ -162,5 +162,23 @@ class InvitationQuery(object):
           uit.c.user_id  == userId)
         v = {uit.c.response_date: d, uit.c.accepted: status}
         u = uit.update(c, values=v)
-        u.execute()        
+        u.execute()
 
+    def withdraw_invitation(self, siteId, groupId, userId, withdrawingId):
+        assert siteId
+        assert groupId
+        assert userId
+        assert withdrawingId
+        
+        d = datetime.utcnow().replace(tzinfo=pytz.utc)
+        uit = self.userInvitationTable
+        c = sa.and_(
+          uit.c.site_id  == siteId, 
+          uit.c.group_id == groupId,
+          uit.c.user_id  == userId,
+          uit.c.response_date == None,
+          uit.c.withdrawn_date == None)
+        v = {uit.c.withdrawn_date: d, uit.c.withdrawing_user_id: withdrawingId}
+        u = uit.update(c, values=v)
+        u.execute()
+        

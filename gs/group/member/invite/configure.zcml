@@ -43,5 +43,10 @@
     factory=".invitationmessagecontentprovider.InvitationMessageContentProvider"
     provides="zope.contentprovider.interfaces.IContentProvider"
     name="groupserver.InvitationMessage"/>
+    
+  <utility 
+    factory=".audit.AuditEventFactory"
+    name="gs.group.member.invite"
+    permission="zope.Public" />
 
 </configure>
