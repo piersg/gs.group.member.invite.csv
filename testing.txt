@@ -24,6 +24,8 @@ Invite Site Member
 
 * The form lists site members
 * Group members are not listed on the form
+* Delivery setting can be set to either *One email per post*, 
+  *Daily digest* or *Web only*.  
 * Invited members are sent an invitation
 
   + Invitations go to the `Existing Member Invitation Response`_ page.
@@ -62,6 +64,13 @@ Existing Member Invitation Response
 
     - New members are moderated
 
+  + Post delivery is the same as what was set on the *Send Invitation* 
+    page.
+    
+    - One email per post
+    - Daily digest of topics
+    - Web only
+
   + Following the invitation link after being accepted will got to the
     *Invitation Responded* page.
 
@@ -77,6 +86,8 @@ Invite New Member
 ===================
 
 * Required attributes are listed
+* Delivery setting can be set to either *One email per post*, 
+  *Daily digest* or *Web only*.  
 * Only email addresses can be entered for the email address
   (see `Ticket 325 <https://projects.iopen.net/groupserver/ticket/325>`_)
 * Message editable
@@ -109,6 +120,13 @@ New Member Invitation Response
   + Email address is verified
   + Password is set
   + New member is redirected to the group
+  + Post delivery is the same as what was set on the *Send Invitation* 
+    page.
+    
+    - One email per post
+    - Daily digest of topics
+    - Web only
+
   + Following the invitation link after being accepted will got to the
     *Invitation Responded* page.
 
@@ -128,6 +146,8 @@ Send Invitations in Bulk
 * Number of possible columns match the number of profile attributes plus
   email
 * Columns with required attributes are disclosed
+* Delivery setting can be set to either *One email per post*, 
+  *Daily digest* or *Web only*.  
 * First row of the CSV is ignored
 * All the other rows are processed
 
