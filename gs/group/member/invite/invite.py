@@ -136,6 +136,7 @@ this invitation.''' % self.groupInfo.name
                 auditor.info(INVITE_OLD_USER, toAddr)
                 inviter.send_notification(data['subject'], 
                     data['message'], inviteId, data['fromAddr'])
+                self.set_delivery(userInfo, data['delivery'])
         else:
             # Email address does not exist, but it is a legitimate address
             user = create_user_from_email(self.context, toAddr)
@@ -146,6 +147,7 @@ this invitation.''' % self.groupInfo.name
             auditor.info(INVITE_NEW_USER, toAddr)
             inviter.send_notification(data['subject'], data['message'], 
                 inviteId, data['fromAddr'], data['toAddr'])
+            self.set_delivery(userInfo, data['delivery'])
             u = userInfo_to_anchor(userInfo)
             self.status = u'''<li>A profile for %s has been created, and
 given the email address %s.</li>\n''' % (u, e)
@@ -174,4 +176,13 @@ given the email address %s.</li>\n''' % (u, e)
         auditor = Auditor(self.siteInfo, self.groupInfo, 
                     self.adminInfo, userInfo)
         return (auditor, inviter)
+
+    def set_delivery(self, userInfo, delivery):
+        if delivery == 'email':
+            # --=mpj17=-- The default is one email per post
+            pass
+        elif delivery == 'digest':
+            userInfo.user.set_enableDigestByKey(self.groupInfo.id)
+        elif delivery == 'web':
+            userInfo.user.set_disableDeliveryByKey(self.groupInfo.id)
 
