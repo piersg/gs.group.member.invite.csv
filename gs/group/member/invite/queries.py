@@ -129,7 +129,7 @@ class InvitationQuery(object):
         it = self.userInvitationTable
         s = it.select()
         s.append_whereclause(it.c.response_date == None)
-        s.append_whereclause(uit.c.withdrawn_date  == None)
+        s.append_whereclause(it.c.withdrawn_date  == None)
         
         s.append_whereclause(it.c.user_id == userInfo.id )
 
