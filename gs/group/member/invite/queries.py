@@ -69,6 +69,7 @@ class InvitationQuery(object):
         s.append_whereclause(uit.c.site_id  == siteId)
         s.append_whereclause(uit.c.user_id  == userId)
         s.append_whereclause(uit.c.response_date == None)
+        s.append_whereclause(uit.c.withdrawn_date  == None)
         s.order_by(sa.desc(uit.c.invitation_date))
 
         r = s.execute()
@@ -128,6 +129,8 @@ class InvitationQuery(object):
         it = self.userInvitationTable
         s = it.select()
         s.append_whereclause(it.c.response_date == None)
+        s.append_whereclause(uit.c.withdrawn_date  == None)
+        
         s.append_whereclause(it.c.user_id == userInfo.id )
 
         r = s.execute()
