@@ -87,13 +87,14 @@
                 tal:attributes="for column/columnId"
                 tal:content="column/columnTitle">Stuff</label>
               <div class="disclosureShowHide"
-                tal:define="startTwo python:n&lt;=2;"
+                tal:define="startTwo python:n&lt;=len(view.requiredColumns);"
                 tal:attributes="style python:startTwo and shown or hidden;">
                 <select id="#" name="#" 
                   tal:attributes="id column/columnId; name column/columnId">
                   <tal:block
                     repeat="option column/profileList">
-                    <tal:block define="initial python:(n==1 and option.token == 'toAddr') or (n==2 and option.token == 'fn')">
+                    <tal:block define="m repeat/option/number;
+                      initial python:(n==1 and option.token == 'toAddr') or ((n&gt;1) and (((n-1)==m) and option.value.required))">
                       <option 
                         tal:condition="initial"
                         selected="selected"

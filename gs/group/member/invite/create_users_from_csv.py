@@ -45,7 +45,7 @@ class CreateUsersForm(BrowserView):
 
         self.__admin = self.__subject = self.__message =  None
         self.__fromAddr = self.__profileInterfaceName = None
-        self.__profileFields = None
+        self.__profileFields = self.__requiredColumns = None
 
     @property
     def profileSchemaName(self):
@@ -241,11 +241,17 @@ the link below and accept this invitation.''' % self.groupInfo.name
         assert type(result['form']) == dict
         return result
     
+    @property
+    def requiredColumns(self):
+        if self.__requiredColumns == None:
+            self.__requiredColumns = [p for p in self.profileList 
+                                        if p.value.required]
+        return self.__requiredColumns
+    
     def get_unspecified_columns(self, columns):
         '''Get the unspecified required columns'''
-        requiredColumns = [p for p in self.profileList if p.value.required]
         unspecified = []
-        for requiredColumn in requiredColumns:
+        for requiredColumn in self.requiredColumns:
             if requiredColumn.token not in columns:
                 unspecified.append(requiredColumn)
         return unspecified
