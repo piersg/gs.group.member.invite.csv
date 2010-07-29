@@ -18,7 +18,7 @@ from Products.XWFCore.odict import ODict
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.GSGroupMember.groupmembership import *
-from Products.GSProfile import interfaceSiteProfile as profileSchemas
+from Products.GSProfile import interfaces as profileSchemas
 from Products.GSProfile.utils import create_user_from_email, \
     enforce_schema
 from Products.GSProfile.interfaceCoreProfile import deliveryVocab
@@ -40,19 +40,40 @@ class CreateUsersForm(BrowserView):
         self.groupInfo = createObject('groupserver.GroupInfo', context)
         self.profileList = ProfileList(context)
         self.acl_users = context.site_root().acl_users
-
         site_root = context.site_root()
         assert hasattr(site_root, 'GlobalConfiguration')
-        config = site_root.GlobalConfiguration
-        self.profileSchemaName = profileSchemaName = \
-          config.getProperty('profileInterface', 'IGSCoreProfile')
-        self.profileSchema = profileSchema = \
-          getattr(profileSchemas, profileSchemaName)
-        self.profileFields = form.Fields(self.profileSchema, render_context=False)
 
         self.__admin = self.__subject = self.__message =  None
-        self.__fromAddr = None
+        self.__fromAddr = self.__profileInterfaceName = None
+        self.__profileFields = None
 
+    @property
+    def profileSchemaName(self):
+        if self.__profileInterfaceName == None:
+            site_root = self.context.site_root()
+            assert hasattr(site_root, 'GlobalConfiguration')
+            config = site_root.GlobalConfiguration
+            ifName = config.getProperty('profileInterface', 'IGSCoreProfile')
+            # --=mpj17=-- Sometimes profileInterface is set to ''
+            ifName = (ifName and ifName) or 'IGSCoreProfile'
+            self.__profileInterfaceName = '%sAdminJoinCSV' % ifName
+            assert hasattr(profileSchemas, ifName), \
+                'Interface "%s" not found.' % ifName
+            assert hasattr(profileSchemas, self.__profileInterfaceName), \
+                'Interface "%s" not found.' % self.__profileInterfaceName
+        return self.__profileInterfaceName
+
+    @property
+    def profileSchema(self):
+        return getattr(profileSchemas, self.profileSchemaName)
+
+    @property
+    def profileFields(self):
+        if self.__profileFields == None:
+            self.__profileFields = form.Fields(self.profileSchema,
+                                    render_context=False)
+        return self.__profileFields
+        
     @property
     def columns(self):
         retval = []
@@ -571,18 +592,29 @@ class ProfileList(object):
     def __init__(self, context):
         self.context = context
         self.__properties = ODict()
+        self.__profileInterfaceName = None
 
-        site_root = context.site_root()
+    @property
+    def profileSchemaName(self):
+        if self.__profileInterfaceName == None:
+            site_root = self.context.site_root()
+            assert hasattr(site_root, 'GlobalConfiguration')
+            config = site_root.GlobalConfiguration
+            ifName = config.getProperty('profileInterface', 'IGSCoreProfile')
+            # --=mpj17=-- Sometimes profileInterface is set to ''
+            ifName = (ifName and ifName) or 'IGSCoreProfile'
+            self.__profileInterfaceName = '%sAdminJoinCSV' % ifName
+            assert self.__profileInterfaceName != None
+            assert hasattr(profileSchemas, ifName), \
+                'Interface "%s" not found.' % ifName
+            assert hasattr(profileSchemas, self.__profileInterfaceName), \
+                'Interface "%s" not found.' % self.__profileInterfaceName
+        return self.__profileInterfaceName
 
-        assert hasattr(site_root, 'GlobalConfiguration')
-        config = site_root.GlobalConfiguration
-        
-        profileSchemaName = config.getProperty('profileInterface',
-                                              'IGSCoreProfile')
-        profileSchemaName = '%sAdminJoinCSV' % profileSchemaName
-        assert hasattr(profileSchemas, profileSchemaName), \
-            'Interface "%s" not found.' % profileSchemaName
-        self.__schema = getattr(profileSchemas, profileSchemaName)
+    @property
+    def schema(self):
+        return getattr(profileSchemas, self.profileSchemaName)
+
         
     def __iter__(self):
         """See zope.schema.interfaces.IIterableVocabulary"""
@@ -626,9 +658,9 @@ class ProfileList(object):
 
     @property
     def properties(self):
-        assert self.context
         if len(self.__properties) == 0:
-            ifs = getFieldsInOrder(self.__schema)
+            assert self.context
+            ifs = getFieldsInOrder(self.schema)
             for interface in ifs:
                 self.__properties[interface[0]] = interface[1]
         retval = self.__properties
