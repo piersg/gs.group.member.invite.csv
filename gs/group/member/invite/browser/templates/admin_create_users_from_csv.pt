@@ -94,16 +94,20 @@
                   <tal:block
                     repeat="option column/profileList">
                     <tal:block define="m repeat/option/number;
-                      initial python:(n==1 and option.token == 'toAddr') or ((n&gt;1) and (((n-1)==m) and option.value.required))">
+                      req option/value/required;
+                      showReq python:req or option.token == 'toAddr';
+                      reqStr string:${option/title} (Required);
+                      optionContent python:showReq and reqStr or option.title;
+                      initial python:(n==1 and option.token == 'toAddr') or ((n&gt;1) and (((n-1)==m) and req))">
                       <option 
                         tal:condition="initial"
                         selected="selected"
-                        tal:content="option/title"
+                        tal:content="optionContent"
                         tal:define="m repeat/option/number"
                         tal:attributes="value option/token"/>
                       <option 
                         tal:condition="not:initial"
-                        tal:content="option/title"
+                        tal:content="optionContent"
                         tal:define="m repeat/option/number"
                         tal:attributes="value option/token"/>
                     </tal:block>
