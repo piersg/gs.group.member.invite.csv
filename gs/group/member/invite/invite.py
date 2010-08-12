@@ -171,6 +171,9 @@ given the email address %s.</li>\n''' % (u, e)
     def add_profile_attributes(self, userInfo, data):
         enforce_schema(userInfo.user, self.inviteFields.profileInterface)
         fields = self.form_fields.select(*self.inviteFields.profileFieldIds)
+        for field in fields:
+            field.interface = self.inviteFields.profileInterface
+            
         changed = form.applyChanges(userInfo.user, fields, data)
         set_digest(userInfo, self.groupInfo, data)
 
