@@ -48,8 +48,13 @@ class InviteEditProfileForm(PageForm):
             self.__formFields['delivery'].custom_widget = radio_widget
         return self.__formFields
         
+    @property
+    def defaultFromEmail(self):
+        retval = self.adminInfo.user.get_preferredEmailAddresses()[0]
+        return retval
+        
     def setUpWidgets(self, ignore_request=False):
-        data = {}
+        data = {'fromAddr': self.defaultFromEmail}
 
         siteTz = self.siteInfo.get_property('tz', 'UTC')
         defaultTz = self.groupInfo.get_property('tz', siteTz)
