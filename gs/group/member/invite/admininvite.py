@@ -1,6 +1,7 @@
 # coding=utf-8
 from zope.component import createObject
 from Products.GSContent.view import GSContentView
+from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope
 
 class AdminInviteView(GSContentView):
     def __init__(self, context, request):
@@ -11,7 +12,7 @@ class AdminInviteView(GSContentView):
     def groupInfo(self):
         if self.__groupInfo == None:
             self.__groupInfo = createObject('groupserver.GroupInfo', 
-                                self.context.aq_self)
+                                get_the_actual_instance_from_zope(self.context))
         assert self.__groupInfo
         return self.__groupInfo
 
