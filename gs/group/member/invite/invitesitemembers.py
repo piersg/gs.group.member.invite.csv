@@ -22,8 +22,14 @@ class GSInviteSiteMembersForm(PageForm):
     def __init__(self, context, request):
         PageForm.__init__(self, context, request)
         self.siteInfo = createObject('groupserver.SiteInfo', context)
-        self.groupInfo= createObject('groupserver.GroupInfo', context)
-        self.__formFields = None
+        self.__formFields = self.__adminInfo = self.__groupInfo = None
+
+    @property
+    def groupInfo(self):
+        if self.__groupInfo == None:
+            self.__groupInfo = \
+                createObject('groupserver.GroupInfo', self.context)
+        return self.__groupInfo
 
     @property
     def form_fields(self):
@@ -35,8 +41,21 @@ class GSInviteSiteMembersForm(PageForm):
             self.__formFields['delivery'].custom_widget = radio_widget
         return self.__formFields
         
+    @property
+    def adminInfo(self):
+        if self.__adminInfo == None:
+            self.__adminInfo = createObject('groupserver.LoggedInUser', 
+                self.context)
+        return self.__adminInfo
+
+    @property
+    def defaultFromEmail(self):
+        retval = self.adminInfo.user.get_preferredEmailAddresses()[0]
+        return retval
+        
     def setUpWidgets(self, ignore_request=False):
-        data = {}
+        data = {'fromAddr': self.defaultFromEmail,
+                'delivery': 'email'}
         subject = u'An Invitation to Join %s' % self.groupInfo.name
         data['subject'] = subject
         
@@ -54,17 +73,15 @@ click the link below and accept this invitation.''' % self.groupInfo.name
 
     @form.action(label=u'Invite', failure='handle_invite_action_failure')
     def handle_invite(self, action, data):
-        adminInfo = createObject('groupserver.LoggedInUser', self.context)
-
         for userId in data['site_members']:
             userInfo = createObject('groupserver.UserFromId',
                                     self.context, userId)
                                     
             inviter = Inviter(self.context, self.request, userInfo, 
-                        adminInfo, self.siteInfo, self.groupInfo)
+                        self.adminInfo, self.siteInfo, self.groupInfo)
             inviteId = inviter.create_invitation(data, False)
             auditor = Auditor(self.siteInfo, self.groupInfo, 
-                        adminInfo, userInfo)
+                        self.adminInfo, userInfo)
             auditor.info(INVITE_OLD_USER)
             inviter.send_notification(data['subject'],  data['message'], 
                 inviteId, data['fromAddr'])
