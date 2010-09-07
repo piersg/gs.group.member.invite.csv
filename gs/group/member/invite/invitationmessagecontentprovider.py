@@ -27,6 +27,8 @@ class InvitationMessageContentProvider(object):
 
         self.siteInfo = createObject('groupserver.SiteInfo', 
           self.context)
+        print 'InvitationMessageContentProvider'
+        print '\tsiteInfo: %s' % self.siteInfo.name
         self.groupInfo = createObject('groupserver.GroupInfo', 
           self.context)
         self.userInfo = createObject('groupserver.LoggedInUser', 

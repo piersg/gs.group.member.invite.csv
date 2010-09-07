@@ -178,6 +178,8 @@ given the email address %s.</li>\n''' % (u, e)
         set_digest(userInfo, self.groupInfo, data)
 
     def get_auditor_inviter(self, userInfo):
+        print 'InviteEditProfileForm.get_auditor_inviter'
+        print '\tsiteInfo %s' % self.siteInfo.name
         inviter = Inviter(self.context, self.request, userInfo, 
                             self.adminInfo, self.siteInfo, 
                             self.groupInfo)
