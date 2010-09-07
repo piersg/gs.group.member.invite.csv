@@ -9,6 +9,7 @@ except ImportError:
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
+from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope
 from Products.GSGroup.groupInfo import groupInfo_to_anchor
 from Products.GSGroupMember.groupmembership import \
   user_member_of_group, user_admin_of_group
@@ -180,7 +181,8 @@ given the email address %s.</li>\n''' % (u, e)
     def get_auditor_inviter(self, userInfo):
         print 'InviteEditProfileForm.get_auditor_inviter'
         print '\tsiteInfo %s' % self.siteInfo.name
-        inviter = Inviter(self.context, self.request, userInfo, 
+        ctx = get_the_actual_instance_from_zope(self.context)
+        inviter = Inviter(ctx, self.request, userInfo, 
                             self.adminInfo, self.siteInfo, 
                             self.groupInfo)
         auditor = Auditor(self.siteInfo, self.groupInfo, 
