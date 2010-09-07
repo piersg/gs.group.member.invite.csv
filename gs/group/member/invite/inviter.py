@@ -75,8 +75,6 @@ class Inviter(object):
             assert mto, 'No to address for %s (%s)' % \
                 (self.userInfo.name, self.userInfo.id)
             assert mfrom, 'No from address' 
-            print 'Inviter.send_notification'
-            print '\tsiteInfo %s' % self.siteInfo.name
             msg = create_invitation_message(
                     Addressee(self.adminInfo, mfrom),
                     Addressee(self.userInfo, mto), 
