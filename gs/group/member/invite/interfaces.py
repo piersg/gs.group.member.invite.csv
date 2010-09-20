@@ -93,3 +93,29 @@ class IGSInviteSiteMembers(IGSInvitationFields):
       unique=True,
       required=True)
 
+class IGSResendInvitation(Interface):
+    userId = ASCIILine(title=u'User Identifier', 
+      description=u'The user ID of the person receiving the '\
+          u'invitation.',
+      required=True)
+    
+    toAddr = ASCIILine(title=u'To', 
+        description=u'The email address of the person receiving the '\
+            u'invitation.',
+        required=True)
+
+    fromAddr = ASCIILine(title=u'To', 
+        description=u'The email address of the person sending the '\
+            u'invitation.',
+        required=True)
+
+    subject = TextLine(title=u'Subject',
+        description=u'The subject-line of the invitation.',
+        required=True)
+
+    message = Text(title=u'Invitation Message',
+      description=u'The message that appears at the top of the email '\
+          u'invitation to the new group member. The message will '\
+          u'appear before the two links that allow the user to accept '\
+          u'or reject the invitation.',
+      required=True)

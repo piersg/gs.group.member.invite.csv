@@ -1,0 +1,117 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:tal="http://xml.zope.org/namespaces/tal"
+  xmlns:metal="http://xml.zope.org/namespaces/metal"
+  metal:use-macro="context/@@groupserver_layout/page">
+  <head>
+    <title metal:fill-slot="title">
+      <span tal:replace="string:${view/label}: ${view/groupInfo/get_name}: ${view/siteInfo/get_name}">
+        Resend Invitation
+      </span>
+    </title>
+  </head>
+  <body>
+    <div metal:fill-slot="messages" tal:condition="view/status" 
+      class="message-error"
+      tal:define="e view/errors"
+      tal:attributes="class python:e and 'message-error' or 'message-result'">
+      <p class="form-status" tal:content="structure view/status"/>
+      <dl tal:condition="view/errors">
+        <tal:block repeat="widget view/widgets">
+          <tal:block tal:condition="widget/error">
+            <dt tal:content="widget/label">Widget Name</dt>
+            <dd class="error" 
+              tal:content="structure widget/error">Error message</dd>
+          </tal:block>
+        </tal:block>
+      </dl>
+    </div>
+    <tal:block metal:fill-slot="body">
+      <form enctype="multipart/form-data"  method="post" action="."
+        tal:attributes="action request/URL" id="resend-invitation">
+        <h1 tal:content="view/label">Resend Invitation</h1>
+        <p>
+          To re-invite the invited member 
+          to the group, enter your message below and click the 
+          <samp class="button"
+            tal:define="action python:[a for a in view.actions][0].label"
+            tal:content="action">Big R</samp>
+          button.
+        </p>
+        <div id="invitationRelatedFields">
+          <p>
+            The new member will be sent an email (from you) inviting 
+            the new member to join 
+            <span class="group" 
+              tal:content="python:view.groupInfo.name">this group</span>.
+            You can customise the message below.
+          </p>
+          <tal:block define="widgets view/widgets">
+            <tal:block
+              replace="structure provider:groupserver.FormWidgets"/>
+          </tal:block>
+          <p id="preview" class="label" style="margin-left:1.39em;padding:0.69em;border:1px solid #5C791C;background:#EDF1E4 none repeat scroll 0 0;width:33.87em;cursor:pointer;">
+            <!--TODO: Move the style into the main CSS as the 
+              -   box-o-interest class-->
+            <strong class="email">Preview</strong> the invitation&#8230;
+          </p>
+        </div><!--invitationFields-->
+        <div class="buttons" tal:condition="view/availableActions">
+          <tal:block repeat="action view/actions">
+            <div class="formelementbutton">
+              <span tal:replace="structure action/render">Button</span>
+            </div>
+          </tal:block>
+        </div><!--buttons-->
+      </form>
+    </tal:block>
+    <tal:block metal:fill-slot="javascript">
+      <script type="text/javascript"
+        src="/++resource++check_required-20071214.js">&#160;</script>
+      <script type="text/javascript"
+        tal:define="widgets view/widgets; 
+          button string:#form\\.actions\\.add"
+        tal:content="provider:groupserver.RequiredWidgetsJavaScript">
+        alert("I have not been replaced.");
+      </script>
+      <script type="text/javascript"
+        src="/++resource++popup_help-20071218.js">&#160;</script>
+      <script type="text/javascript">
+        jQuery.noConflict()
+        
+        var popupPreview = function (event) {
+            var baseUri = 'admin_invitation_message_preview.html';
+            var uri = null;
+            var messageBody = null;
+            var toAddr = null
+            var fromAddr = null;
+            var subject = null;
+            var specs = 'height=360,width=730,menubar=no,status=no,tolbar=no';
+            
+            messageBody = jQuery('#form\\.message').val();
+            messageBody = messageBody.replace(/\ /g, '%20');
+            messageBody = messageBody.replace(/\n/g, '%0A');
+            uri = baseUri + '?form.body=' + messageBody;
+            fromAddr = jQuery('#form\\.fromAddr').val();
+            uri = uri + '&form.fromAddr=' + fromAddr;
+            toAddr = jQuery('#form\\.toAddr').val();
+            uri = uri + '&form.toAddr=' + toAddr;
+            subject = jQuery('#form\\.subject').val();
+            uri = uri + '&form.subject=' + subject.replace(/ /g, '%20');
+            
+            window.open(uri, 'Message Preview', specs)
+        }
+        
+        jQuery(document).ready( function () {
+            GSPopupFormHelp.init('#edit-profile');
+            jQuery('#preview').click(popupPreview);
+            jQuery('#form\\.toAddr').focus();
+        });
+      </script>
+      <script type="text/javascript" 
+        src="/++resource++wymeditor-20090831/jquery.wymeditor.js">&#160;</script>
+      <script type="text/javascript"
+        src="/++resource++gswym.js">&#160;</script>
+    </tal:block>
+  </body>
+</html>
+

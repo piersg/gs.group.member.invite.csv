@@ -9,6 +9,12 @@
     name="admin_join.html"
     class=".invite.InviteEditProfileForm"
     permission="zope2.ManageUsers"/>
+  
+  <browser:page 
+    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    name="resend_invitation.html"
+    class=".reinvite.ReInviteForm"
+    permission="zope2.ManageUsers"/>
     
   <browser:page 
     for="Products.XWFChat.interfaces.IGSGroupFolder"
