@@ -16,7 +16,7 @@ from inviter import Inviter
 from audit import Auditor, INVITE_OLD_USER, INVITE_EXISTING_MEMBER
 from interfaces import IGSResendInvitation
 
-class ReInviteForm(PageForm):
+class ResendInvitationForm(PageForm):
     pageTemplateFileName = 'browser/templates/resend_invite.pt'
     template = ZopeTwoPageTemplateFile(pageTemplateFileName)
 
@@ -28,8 +28,7 @@ class ReInviteForm(PageForm):
         self.__groupInfo = self.__formFields =  self.__config = None
         self.__userInfo = self.__adminInfo = None
         self.userId = request.form['form.userId']
-        self.label = u'Re-Invite %s to %s' % \
-          (self.userInfo.name, self.groupInfo.name)
+        self.label = u'Resend Invitation to %s' % self.userInfo.name
 
     @property
     def form_fields(self):
@@ -68,7 +67,7 @@ participating in the group as soon as you accept this invitation.''' % \
             self.request, form=self, data=data,
             ignore_request=ignore_request)
         
-    @form.action(label=u'Invite', failure='handle_invite_action_failure')
+    @form.action(label=u'Resend', failure='handle_invite_action_failure')
     def handle_invite(self, action, data):
         self.actual_handle_add(action, data)
         
@@ -111,17 +110,15 @@ participating in the group as soon as you accept this invitation.''' % \
             self.status = u'%s<li>No changes have been made.</li>' % \
               self.status
         elif user_invited_member_of_group(self.userInfo, self.groupInfo, self.siteInfo):
-            self.status=u'<li>Re-inviting the existing person with '\
-              u'the email address %s &#8213; %s &#8213; to join '\
-              u'%s.</li>'% (e, u, g)
+            self.status=u'<li>Resending an invitation to %s (with '\
+              u'the email address %s) to join %s.</li>'% (u, e, g)
             inviteId = inviter.create_invitation(data, False)
             auditor.info(INVITE_OLD_USER, self.defaultToEmail)
             inviter.send_notification(data['subject'], 
                 data['message'], inviteId, data['fromAddr'], data['toAddr'])
         else:
-            self.status=u'''<li>The person with the email address %s 
-&#8213; %s &#8213; cannot be re-invited to join %s, because they have 
-not yet been invited to join %s.</li>'''% (e, u, g, g)
+            self.status=u'''<li>Cannot <strong>resend</strong> an   
+invitation to %s, because they have not yet been invited to join %s.</li>'''% (u, g)
             self.status = u'%s<li>No changes have been made.</li>' % \
               self.status
         assert self.status

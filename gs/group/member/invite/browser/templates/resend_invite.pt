@@ -30,9 +30,9 @@
         tal:attributes="action request/URL" id="resend-invitation">
         <h1 tal:content="view/label">Resend Invitation</h1>
         <p>
-          To re-invite <span tal:replace="view/userInfo/name"/>
-          (<code class="email" tal:content="view/defaultToEmail"/>) 
-          to the group, customise the message below and click the 
+          To resend an invitation to <span tal:replace="view/userInfo/name"/>
+          (<code class="email" tal:content="view/defaultToEmail"/>), 
+          customise the message below and click the 
           <samp class="button"
             tal:define="action python:[a for a in view.actions][0].label"
             tal:content="action">Big R</samp>

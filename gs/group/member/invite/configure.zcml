@@ -13,7 +13,7 @@
   <browser:page 
     for="Products.XWFChat.interfaces.IGSGroupFolder"
     name="resend_invitation.html"
-    class=".reinvite.ReInviteForm"
+    class=".reinvite.ResendInvitationForm"
     permission="zope2.ManageUsers"/>
     
   <browser:page 
