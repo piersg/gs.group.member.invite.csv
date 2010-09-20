@@ -45,9 +45,14 @@
               tal:content="python:view.groupInfo.name">this group</span>.
             You can customise the message below.
           </p>
-          <tal:block define="widgets view/widgets">
+          <tal:block define="widgets python:[[w for w in view.widgets][-1]]">
             <tal:block
               replace="structure provider:groupserver.FormWidgets"/>
+          </tal:block>
+          <tal:block define="widgets python:[w for w in view.widgets][:-1]">
+            <span
+              tal:repeat="widget widgets" 
+              tal:replace="structure widget/hidden"/>
           </tal:block>
           <p id="preview" class="label" style="margin-left:1.39em;padding:0.69em;border:1px solid #5C791C;background:#EDF1E4 none repeat scroll 0 0;width:33.87em;cursor:pointer;">
             <!--TODO: Move the style into the main CSS as the 
