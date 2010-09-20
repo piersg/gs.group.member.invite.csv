@@ -16,7 +16,6 @@ from audit import Auditor, INVITE_OLD_USER, INVITE_EXISTING_MEMBER
 from interfaces import IGSResendInvitation
 
 class ReInviteForm(PageForm):
-    label = u'Re-Invite an Invited Group Member'
     pageTemplateFileName = 'browser/templates/resend_invite.pt'
     template = ZopeTwoPageTemplateFile(pageTemplateFileName)
 
@@ -28,6 +27,9 @@ class ReInviteForm(PageForm):
         self.__groupInfo = self.__formFields =  self.__config = None
         self.__userInfo = self.__adminInfo = None
         self.userId = request.form['form.userId']
+        self.label = u'Re-Invite %s to %s' % \
+          (self.userInfo.name, self.groupInfo.name)
+
 
     @property
     def form_fields(self):
@@ -53,11 +55,12 @@ class ReInviteForm(PageForm):
         subject = u'Another Invitation to Join %s' % self.groupInfo.name
         data['subject'] = subject
         
-        message = u'''Hi there!
+        message = u'''Hi %s!
 
-Please accept this follow-up invitation to join %s. I have set up a profile for
-you, so you can start participating in the group as soon as you accept
-this invitation.''' % self.groupInfo.name
+Please accept this follow-up invitation to join %s. As per 
+my previous message, I have set up a profile for you, so you can start 
+participating in the group as soon as you accept this invitation.''' % \
+  (self.userInfo.name, self.groupInfo.name)
         data['message'] = message
         
         self.widgets = form.setUpWidgets(

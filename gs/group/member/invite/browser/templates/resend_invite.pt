@@ -30,21 +30,15 @@
         tal:attributes="action request/URL" id="resend-invitation">
         <h1 tal:content="view/label">Resend Invitation</h1>
         <p>
-          To re-invite the invited member 
-          to the group, enter your message below and click the 
+          To re-invite <span tal:replace="view/userInfo/name"/>
+          (<code class="email" tal:content="view/defaultToEmail"/>) 
+          to the group, customise the message below and click the 
           <samp class="button"
             tal:define="action python:[a for a in view.actions][0].label"
             tal:content="action">Big R</samp>
           button.
         </p>
         <div id="invitationRelatedFields">
-          <p>
-            The new member will be sent an email (from you) inviting 
-            the new member to join 
-            <span class="group" 
-              tal:content="python:view.groupInfo.name">this group</span>.
-            You can customise the message below.
-          </p>
           <tal:block define="widgets python:[[w for w in view.widgets][-1]]">
             <tal:block
               replace="structure provider:groupserver.FormWidgets"/>

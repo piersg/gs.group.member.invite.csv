@@ -1,5 +1,5 @@
 # coding=utf-8
-from zope.schema import *
+from zope.schema import ASCIILine, Bool, Choice, List, Text, TextLine
 from zope.interface.interface import Interface
 from zope.schema.vocabulary import SimpleVocabulary
 from Products.GSProfile.interfaces import deliveryVocab
@@ -56,7 +56,7 @@ class IGSInvitationMessageContentProvider(IGSInvitationMessage):
         description=u'The message that appears at the top of the email '\
             u'invitation to the new group member. The message will '\
             u'appear before the link that allows the recipient to '\
-            u'accept or reject the inviation.',
+            u'accept or reject the invitation.',
         required=True)
         
 class IGSInvitationFields(Interface): 
@@ -64,7 +64,7 @@ class IGSInvitationFields(Interface):
         description=u'The message that appears at the top of the email '\
             u'invitation to the new group member. The message will '\
             u'appear before the link that allows the member to accept '\
-            u'or reject the inviation.',
+            u'or reject the invitation.',
         required=True)
 
     fromAddr = Choice(title=u'Email From',
@@ -98,24 +98,22 @@ class IGSResendInvitation(Interface):
       description=u'The user ID of the person receiving the '\
           u'invitation.',
       required=True)
-    
+    subject = TextLine(title=u'Subject',
+        description=u'The subject-line of the invitation.',
+        required=True)
+    fromAddr = ASCIILine(title=u'From', 
+        description=u'The email address of the person sending the '\
+            u'invitation.',
+        required=True)
     toAddr = ASCIILine(title=u'To', 
         description=u'The email address of the person receiving the '\
             u'invitation.',
         required=True)
-
-    fromAddr = ASCIILine(title=u'To', 
-        description=u'The email address of the person sending the '\
-            u'invitation.',
-        required=True)
-
-    subject = TextLine(title=u'Subject',
-        description=u'The subject-line of the invitation.',
-        required=True)
-
     message = Text(title=u'Invitation Message',
       description=u'The message that appears at the top of the email '\
           u'invitation to the new group member. The message will '\
           u'appear before the two links that allow the user to accept '\
           u'or reject the invitation.',
       required=True)
+    
+    
