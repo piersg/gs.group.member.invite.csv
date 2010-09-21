@@ -105,8 +105,8 @@ participating in the group as soon as you accept this invitation.''' % \
         auditor, inviter = self.get_auditor_inviter()
         if user_member_of_group(self.userInfo.user, self.groupInfo):
             auditor.info(INVITE_EXISTING_MEMBER, self.defaultToEmail)
-            self.status=u'''<li>The person with the email address %s 
-&#8213; %s &#8213; is already a member of %s.</li>'''% (e, u, g)
+            self.status=u'''<li>%s (with the email address %s) is 
+already a member of %s.</li>'''% (u, e, g)
             self.status = u'%s<li>No changes have been made.</li>' % \
               self.status
         elif user_invited_member_of_group(self.userInfo, self.groupInfo, self.siteInfo):
