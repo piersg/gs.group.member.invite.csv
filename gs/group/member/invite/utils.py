@@ -1,8 +1,7 @@
 # coding=utf-8
 import md5
 from time import asctime
-from Products.GSGroupMember.groupmembership import user_member_of_group,\
-    userInfo_to_user, userInfo_to_user
+from Products.GSGroupMember.groupmembership import userInfo_to_user
 from Products.XWFCore.XWFUtils import convert_int2b62
 
 def set_digest(userInfo, groupInfo, data):

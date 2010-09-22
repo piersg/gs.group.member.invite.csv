@@ -10,8 +10,7 @@ from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope
 from Products.GSGroup.groupInfo import groupInfo_to_anchor
-from Products.GSGroupMember.groupmembership import user_member_of_group, \
-  user_invited_member_of_group
+from Products.GSGroupMember.groupMembersInfo import GSGroupMembersInfo
 from inviter import Inviter
 from audit import Auditor, INVITE_OLD_USER, INVITE_EXISTING_MEMBER
 from interfaces import IGSResendInvitation
@@ -103,13 +102,14 @@ participating in the group as soon as you accept this invitation.''' % \
         u = userInfo_to_anchor(self.userInfo)
         g = groupInfo_to_anchor(self.groupInfo)
         auditor, inviter = self.get_auditor_inviter()
-        if user_member_of_group(self.userInfo.user, self.groupInfo):
+        membersInfo = GSGroupMembersInfo(self.groupInfo.groupObj)
+        if self.userId in [m.id for m in membersInfo.fullMembers]:
             auditor.info(INVITE_EXISTING_MEMBER, self.defaultToEmail)
             self.status=u'''<li>%s (with the email address %s) is 
 already a member of %s.</li>'''% (u, e, g)
             self.status = u'%s<li>No changes have been made.</li>' % \
               self.status
-        elif user_invited_member_of_group(self.userInfo, self.groupInfo, self.siteInfo):
+        elif self.userId in [m.id for m in membersInfo.invitedMembers]:
             self.status=u'<li>Resending an invitation to %s (with '\
               u'the email address %s) to join %s.</li>'% (u, e, g)
             inviteId = inviter.create_invitation(data, False)
