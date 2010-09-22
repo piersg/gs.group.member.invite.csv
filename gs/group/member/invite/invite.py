@@ -11,8 +11,7 @@ from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope
 from Products.GSGroup.groupInfo import groupInfo_to_anchor
-from Products.GSGroupMember.groupmembership import \
-  user_member_of_group, user_admin_of_group
+from Products.GSGroupMember.groupmembership import user_member_of_group
 from Products.GSProfile.edit_profile import select_widget, wym_editor_widget
 from Products.GSProfile.utils import create_user_from_email, \
     enforce_schema
