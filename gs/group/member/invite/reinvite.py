@@ -79,8 +79,8 @@ participating in the group as soon as you accept this invitation.''' % \
     @property
     def groupInfo(self):
         if self.__groupInfo == None:
-            self.__groupInfo = \
-                createObject('groupserver.GroupInfo', self.context)
+            ctx = get_the_actual_instance_from_zope(self.context)
+            self.__groupInfo = createObject('groupserver.GroupInfo', ctx)
         return self.__groupInfo
     
     @property
