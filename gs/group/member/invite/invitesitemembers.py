@@ -9,7 +9,7 @@ from zope.formlib import form
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.GSProfile.edit_profile import multi_check_box_widget
-from Products.GSGroup.changebasicprivacy import radio_widget
+from gs.content.form.radio import radio_widget
 from interfaces import IGSInviteSiteMembers
 from inviter import Inviter
 from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER

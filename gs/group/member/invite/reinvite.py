@@ -137,3 +137,4 @@ invitation to %s, because they have not yet been invited to join %s.</li>'''% (u
         auditor = Auditor(self.siteInfo, self.groupInfo, 
                     self.adminInfo, self.userInfo)
         return (auditor, inviter)
+

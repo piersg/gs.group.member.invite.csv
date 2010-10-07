@@ -17,7 +17,7 @@ from Products.GSProfile.utils import create_user_from_email, \
     enforce_schema
 from Products.GSProfile.emailaddress import NewEmailAddress, \
     EmailAddressExists
-from Products.GSGroup.changebasicprivacy import radio_widget
+from gs.content.form.radio import radio_widget
 from utils import set_digest
 from invitefields import InviteFields
 from inviter import Inviter
