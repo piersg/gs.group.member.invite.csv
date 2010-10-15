@@ -63,15 +63,8 @@ class Inviter(object):
         
     def send_notification(self, subject, message, inviteId, fromAddr, toAddr=''):
         mfrom = fromAddr.strip()
-        
         notifiedUser = IGSNotifyUser(self.userInfo)            
-        try:
-            addrs = notifiedUser.get_addresses()
-        except AssertionError, assErr:
-            addrs = [toAddr.strip()]
-        assert addrs, 'To address for a new user not set.'
-            
-        for mto in addrs:
+        for mto in self.get_addrs(toAddr):
             assert mto, 'No to address for %s (%s)' % \
                 (self.userInfo.name, self.userInfo.id)
             assert mfrom, 'No from address' 
@@ -81,4 +74,31 @@ class Inviter(object):
                     SupportAddressee(self.context, self.siteInfo), 
                     subject, message, inviteId, self.contentProvider)
             notifiedUser.send_message(msg, mto, mfrom)
+
+    def get_addrs(self, toAddr):
+        notifiedUser = IGSNotifyUser(self.userInfo)            
+        try:
+            addrs = notifiedUser.get_addresses()
+        except AssertionError, assErr:
+            addrs = [toAddr.strip()]
+        addrs = [a for a in addrs if a]
+        ### BEGIN(hack)
+        ### TODO: Remove this hack
+        ###
+        ### --=mpj17=-- UGLY HACK --=mpj17=--
+        ###
+        ### Sometimes a persion is invited who has an existing profile
+        ### but all his or her email addresses are unverified. If this 
+        ### is the case we will send the invitation anyway. With **luck**
+        ### the user will only have **one** (un, uno, I, 1) address,
+        ### which will get verified when he or she joins. Otherwise the
+        ### gs.profile.invite.initialresponse.InitialResponseForm may
+        ### verify the **wrong** address.
+        ###
+        ### See <https://projects.iopen.net/groupserver/ticket/514>
+        ###
+        if not addrs:
+            addrs = self.userInfo.user.get_emailAddresses()
+        ### END(hack) (* Modula-2 Geek *)
+        return addrs
 
