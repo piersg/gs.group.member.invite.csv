@@ -131,8 +131,8 @@ this invitation.''' % self.groupInfo.name
                 auditor.info(INVITE_EXISTING_MEMBER, toAddr)
                 self.status=u'''<li>The person with the email address %s 
 &#8213; %s &#8213; is already a member of %s.</li>'''% (e, u, g)
-                self.status = u'%s<li>No changes have been made.</li>' % \
-                  self.status
+                self.status = u'%s<li>No changes to the profile of '\
+                  '%s have been made.</li>' % (self.status, u)
             else:
                 self.status=u'<li>Inviting the existing person with '\
                   u'the email address %s &#8213; %s &#8213; to join '\
