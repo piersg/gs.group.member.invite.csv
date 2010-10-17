@@ -9,6 +9,7 @@ from zope.formlib import form
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.GSProfile.edit_profile import multi_check_box_widget
+from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope
 from gs.content.form.radio import radio_widget
 from interfaces import IGSInviteSiteMembers
 from inviter import Inviter
@@ -74,10 +75,10 @@ click the link below and accept this invitation.''' % self.groupInfo.name
     @form.action(label=u'Invite', failure='handle_invite_action_failure')
     def handle_invite(self, action, data):
         for userId in data['site_members']:
-            userInfo = createObject('groupserver.UserFromId',
-                                    self.context, userId)
-                                    
-            inviter = Inviter(self.context, self.request, userInfo, 
+            ctx = get_the_actual_instance_from_zope(self.context)
+            userInfo = createObject('groupserver.UserFromId', ctx,
+                                        userId)                                    
+            inviter = Inviter(ctx, self.request, userInfo, 
                         self.adminInfo, self.siteInfo, self.groupInfo)
             inviteId = inviter.create_invitation(data, False)
             auditor = Auditor(self.siteInfo, self.groupInfo, 
