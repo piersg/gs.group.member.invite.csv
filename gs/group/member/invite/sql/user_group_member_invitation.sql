@@ -1,3 +1,5 @@
+SET CLIENT_MIN_MESSAGES = WARNING;
+
 CREATE TABLE user_group_member_invitation (
     INVITATION_ID        TEXT                        PRIMARY KEY,
     USER_ID              TEXT                        NOT NULL,
