@@ -57,7 +57,7 @@
             <tal:block
               replace="structure provider:groupserver.FormWidgets"/>
           </tal:block>
-          <p id="preview" class="label" style="margin-left:1.39em;padding:0.69em;border:1px solid #5C791C;background:#EDF1E4 none repeat scroll 0 0;width:33.87em;cursor:pointer;">
+          <p id="invite-message-preview-button" class="label">
             <!--TODO: Move the style into the main CSS as the 
               -   box-o-interest class-->
             <strong class="email">Preview</strong> the invitation&#8230;
@@ -78,6 +78,7 @@
               replace="structure provider:groupserver.FormWidgets"/>
           </tal:block>
         </div>
+        <div class="noFloat">&#160;</div>
         <div id="standardProfileFields">
           <h2>Standard Profile Information</h2>
           <p>The following fields are the standard profile fields on
