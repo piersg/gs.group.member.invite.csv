@@ -10,21 +10,9 @@
     </title>
   </head>
   <body>
-    <div metal:fill-slot="messages" tal:condition="view/status" 
-      class="message-error"
-      tal:define="e view/errors"
-      tal:attributes="class python:e and 'message-error' or 'message-result'">
-      <p class="form-status" tal:content="structure view/status"/>
-      <dl tal:condition="view/errors">
-        <tal:block repeat="widget view/widgets">
-          <tal:block tal:condition="widget/error">
-            <dt tal:content="widget/label">Widget Name</dt>
-            <dd class="error" 
-              tal:content="structure widget/error">Error message</dd>
-          </tal:block>
-        </tal:block>
-      </dl>
-    </div>
+    <tal:block content="structure provider:groupserver.FormStatusMessage"
+      define="errors view/errors; status view/status; widgets view/widgets"
+      metal:fill-slot="messages">&#160;</tal:block>
     <tal:block metal:fill-slot="body">
       <form enctype="multipart/form-data"  method="post" action="."
         tal:attributes="action request/URL" id="edit-profile">
@@ -57,7 +45,7 @@
             <tal:block
               replace="structure provider:groupserver.FormWidgets"/>
           </tal:block>
-          <p id="preview" class="label" style="margin-left:1.39em;padding:0.69em;border:1px solid #5C791C;background:#EDF1E4 none repeat scroll 0 0;width:33.87em;cursor:pointer;">
+          <p id="invite-message-preview-button" class="label">
             <!--TODO: Move the style into the main CSS as the 
               -   box-o-interest class-->
             <strong class="email">Preview</strong> the invitation&#8230;
@@ -78,6 +66,7 @@
               replace="structure provider:groupserver.FormWidgets"/>
           </tal:block>
         </div>
+        <div class="noFloat">&#160;</div>
         <div id="standardProfileFields">
           <h2>Standard Profile Information</h2>
           <p>The following fields are the standard profile fields on

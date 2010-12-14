@@ -4,26 +4,12 @@
   metal:use-macro="context/@@groupserver_site_home_layout/page">
   <head>
     <title metal:fill-slot="title">Invite New Group Members in Bulk</title>
-    <style type="text/css" metal:fill-slot="style">
-      select {
-        margin: 0px 0px 1.39em 1.39em;
-      }
-      #preview {
-        border: 1px solid #5C791C;
-        padding: 0.69em; 
-        background: #EDF1E4 none repeat scroll 0pt 0pt; 
-        margin-left: 1.39em; 
-      }
-    </style>
   </head>
   <body>
-    <div metal:fill-slot="messages"
-      tal:define="result view/process_form;
-      isError python:result.get('error', False);"
-      tal:condition="python:result and result.has_key('message')"
-      tal:attributes="class python:(isError and 'message-error') or 'message-result'"
-      tal:content="structure result/message"/>
-    <div metal:fill-slot="body">
+    <tal:block content="structure provider:groupserver.FormStatusMessage"
+      define="errors view/errors; status view/status; widgets view/widgets"
+      metal:fill-slot="messages">&#160;</tal:block>
+    <div metal:fill-slot="body" id="gs-group-member-invite-csv">
       <form enctype="multipart/form-data"  method="post" action="."
         tal:attributes="action request/URL" id="edit-profile">
         
@@ -147,6 +133,7 @@
             value="web" name="delivery"/>
           <label class="radioLabel" for="delivery.2">Web only</label>
         </div><!--value-->
+        <div class="noFloat">&#160;</div>
         <h2>Step 5: Invite the Members</h2>
         <p>
           Click the <samp class="button">Invite</samp> button to
@@ -154,8 +141,8 @@
           Each new member will be sent the following invitation message.
           (The URL itself will be different for each new member.)
         </p>
-        <div id="preview">
-          <pre tal:define="text python:False;
+          <pre id="invite-message-preview"
+            tal:define="text python:False;
               preview python:True;
               text python:True;
               fromAddr string:foo;
@@ -165,14 +152,13 @@
               body view/message;"
             tal:content="structure provider:groupserver.InvitationMessage">
             Preview
-          </pre>
-        </div>
+          </pre><!--invite-message-preview-->
         <input type="hidden" id="submitted" name="submitted" 
           class="hidden" value=""/>
         <input type="submit" id="create" name="create" class="button"
           value="Invite"/>
       </form>
-    </div>
+    </div><!--gs-group-member-invite-csv-->
   </body>
 </html>
 

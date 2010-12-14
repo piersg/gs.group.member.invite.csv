@@ -7,25 +7,12 @@
     </title>
   </head>
   <body>
-    <div metal:fill-slot="messages" tal:condition="view/status" 
-      class="message-error"
-      tal:define="e view/errors"
-      tal:attributes="class python:e and 'message-error' or 'message-result'">
-      <p class="form-status" tal:content="structure view/status"/>
-      <dl tal:condition="view/errors">
-        <tal:block repeat="widget view/widgets">
-          <tal:block tal:condition="widget/error">
-            <dt tal:content="widget/label">Widget Name</dt>
-            <dd class="error" 
-              tal:content="structure widget/error">Error message</dd>
-          </tal:block>
-        </tal:block>
-      </dl>
-    </div>
+    <tal:block content="structure provider:groupserver.FormStatusMessage"
+      define="errors view/errors; status view/status; widgets view/widgets"
+      metal:fill-slot="messages">&#160;</tal:block>
     <tal:block metal:fill-slot="body">
       <form enctype="multipart/form-data"  method="post" action="."
         tal:attributes="action request/URL" id="invite-site-members">
-        
         <h1 tal:content="view/label">Invite Site Members</h1>
         <p>
           To invite existing site members to join
@@ -57,6 +44,7 @@
         <tal:block define="widgets python:[view.widgets['site_members']]">
           <tal:block replace="structure provider:groupserver.FormWidgets"/>
         </tal:block>
+        <div class="noFloat">&#160;</div>
         <h2>Delivery Settings</h2>
         <p>
           You can set the inital message delivery settings for the
@@ -65,6 +53,7 @@
         <tal:block define="widgets python:[view.widgets['delivery']]">
           <tal:block replace="structure provider:groupserver.FormWidgets"/>
         </tal:block>
+        <div class="noFloat">&#160;</div>
         <div class="buttons" tal:condition="view/availableActions">
           <tal:block repeat="action view/actions">
             <div class="formelementbutton">
