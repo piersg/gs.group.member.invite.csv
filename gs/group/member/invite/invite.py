@@ -106,7 +106,21 @@ this invitation.''' % self.groupInfo.name
 
     @property
     def profileWidgets(self):
-        return self.inviteFields.get_profile_widgets(self.widgets)    
+        return self.inviteFields.get_profile_widgets(self.widgets)
+        
+    @property  
+    def requiredProfileWidgets(self):
+        widgets = self.inviteFields.get_profile_widgets(self.widgets)
+        widgets = [widget for widget in widgets if widget.required == True]
+        
+        return widgets
+    
+    @property
+    def optionalProfileWidgets(self):
+        widgets = self.inviteFields.get_profile_widgets(self.widgets)
+        widgets = [widget for widget in widgets if widget.required == False]
+            
+        return widgets
         
     def actual_handle_add(self, action, data):
         userInfo = None
@@ -161,12 +175,6 @@ given the email address %s.</li>\n''' % (u, e)
         assert user, 'User not created or found'
         assert self.status
         return userInfo
-        
-    def handle_add_action_failure(self, action, data, errors):
-        if len(errors) == 1:
-            self.status = u'<p>There is an error:</p>'
-        else:
-            self.status = u'<p>There are errors:</p>'
 
     def add_profile_attributes(self, userInfo, data):
         enforce_schema(userInfo.user, self.inviteFields.profileInterface)

@@ -74,7 +74,7 @@
               tal:content="python:view.siteInfo.name">this site</span>.
             You must fill out all required fields, but you can ignore 
             the other fields.</p>
-          <tal:block define="widgets python:[view.profileWidgets[0]]">
+          <tal:block define="widgets view/requiredProfileWidgets">
             <tal:block
               replace="structure provider:groupserver.FormWidgets"/>
           </tal:block>          
@@ -85,7 +85,7 @@
           </p>
           <div class="disclosureShowHide" style="display: none;">
             
-          <tal:block define="widgets python:view.profileWidgets[1:]">
+          <tal:block define="widgets view/optionalProfileWidgets">
             <tal:block
               replace="structure provider:groupserver.FormWidgets"/>
           </tal:block>
