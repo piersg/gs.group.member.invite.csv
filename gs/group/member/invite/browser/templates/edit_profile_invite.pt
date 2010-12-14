@@ -45,7 +45,8 @@
             <tal:block
               replace="structure provider:groupserver.FormWidgets"/>
           </tal:block>
-          <p id="invite-message-preview-button" class="label">
+          <p id="invite-message-preview-button" 
+            class="label ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
             <!--TODO: Move the style into the main CSS as the 
               -   box-o-interest class-->
             <strong class="email">Preview</strong> the invitation&#8230;
@@ -127,7 +128,7 @@
         
         jQuery(document).ready( function () {
             GSPopupFormHelp.init('#edit-profile');
-            jQuery('#preview').click(popupPreview);
+            jQuery('#invite-message-preview-button').click(popupPreview);
             jQuery('#form\\.toAddr').focus();
         });
       </script>
