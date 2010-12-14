@@ -36,7 +36,7 @@ class InviteFields(object):
             # --=mpj17=-- Sometimes profileInterface is set to ''
             ifName = (ifName and ifName) or 'IGSCoreProfile'
             assert hasattr(interfaces, ifName), \
-                'Interface "%s" not found.' % adminInterfaceName
+                'Interface "%s" not found.' % ifName
             self.__profileInterfaceName = ifName
         return self.__profileInterfaceName
     
