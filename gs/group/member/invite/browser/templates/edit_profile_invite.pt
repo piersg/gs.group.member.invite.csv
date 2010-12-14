@@ -85,11 +85,22 @@
               tal:content="python:view.siteInfo.name">this site</span>.
             You must fill out all required fields, but you can ignore 
             the other fields.</p>
-          <tal:block define="widgets view/profileWidgets">
+          <tal:block define="widgets python:[view.profileWidgets[0]]">
+            <tal:block
+              replace="structure provider:groupserver.FormWidgets"/>
+          </tal:block>          
+        </div><!--standardProfileFields-->
+        <div id="advancedProfileFields" class="disclosureWidget">
+          <p>
+            <a class="disclosureButton" href="javascript:showHideDisclosure('advancedProfileFields')">You may optionally enter other parts of the new member's profile</a>
+          </p>
+          <div class="disclosureShowHide" style="display: none;">
+            
+          <tal:block define="widgets python:view.profileWidgets[1:]">
             <tal:block
               replace="structure provider:groupserver.FormWidgets"/>
           </tal:block>
-        </div><!--standardProfileFields-->
+        </div><!--advancedProfileFields-->
         <div class="buttons" tal:condition="view/availableActions">
           <tal:block repeat="action view/actions">
             <div class="formelementbutton">
