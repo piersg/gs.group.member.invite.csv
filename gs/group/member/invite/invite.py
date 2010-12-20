@@ -9,7 +9,7 @@ except ImportError:
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
-from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope
+from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope, abscompath
 from Products.GSGroup.groupInfo import groupInfo_to_anchor
 from Products.GSGroupMember.groupmembership import user_member_of_group
 from Products.GSProfile.edit_profile import select_widget, wym_editor_widget
@@ -23,9 +23,12 @@ from invitefields import InviteFields
 from inviter import Inviter
 from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER, INVITE_EXISTING_MEMBER
 
+import gs.group.member.invite
+
 class InviteEditProfileForm(PageForm):
     label = u'Invite a New Group Member'
-    pageTemplateFileName = 'browser/templates/edit_profile_invite.pt'
+    pageTemplateFileName = abscompath(gs.group.member.invite,
+                                      'browser/templates/edit_profile_invite.pt')
     template = ZopeTwoPageTemplateFile(pageTemplateFileName)
 
     def __init__(self, context, request):
