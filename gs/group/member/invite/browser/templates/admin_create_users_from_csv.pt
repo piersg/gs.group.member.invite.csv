@@ -6,9 +6,12 @@
     <title metal:fill-slot="title">Invite New Group Members in Bulk</title>
   </head>
   <body>
-    <tal:block content="structure provider:groupserver.FormStatusMessage"
-      define="errors view/errors; status view/status; widgets view/widgets"
-      metal:fill-slot="messages">&#160;</tal:block>
+    <div metal:fill-slot="messages"
+      tal:define="result view/process_form;
+        isError python:result.get('error', False);"
+      tal:condition="python:result and result.has_key('message')"
+      tal:attributes="class python:(isError and 'message-error') or 'message-result'"
+      tal:content="structure result/message"/>
     <div metal:fill-slot="body" id="gs-group-member-invite-csv">
       <form enctype="multipart/form-data"  method="post" action="."
         tal:attributes="action request/URL" id="edit-profile">
