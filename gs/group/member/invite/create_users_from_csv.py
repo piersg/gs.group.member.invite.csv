@@ -3,6 +3,7 @@
 
 This may appear to be a big scary module, but do not worry. Most of it
 is devoted to writing the error message.'''
+import transaction
 from csv import DictReader
 from zope.component import createObject
 from zope.formlib import form
@@ -17,7 +18,8 @@ from Products.Five import BrowserView
 from Products.XWFCore.odict import ODict
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
-from Products.GSGroupMember.groupmembership import *
+from Products.GSGroupMember.groupmembership import user_member_of_group,\
+  user_admin_of_group
 from Products.GSProfile import interfaces as profileSchemas
 from Products.GSProfile.utils import create_user_from_email, \
     enforce_schema
@@ -219,9 +221,9 @@ the link below and accept this invitation.''' % self.groupInfo.name
         unspecified = self.get_unspecified_columns(columns)
         if unspecified:
             error = True
-            colPlural = len(notSpecified) > 1 and 'columns have' \
+            colPlural = len(unspecified) > 1 and 'columns have' \
               or 'column has'
-            colM = '\n'.join(['<li>%s</li>'% c.title for c in notSpecified])
+            colM = '\n'.join(['<li>%s</li>'% c.title for c in unspecified])
             m = u'<p>The required %s not been specified:</p>\n<ul>%s</ul>' %\
               (colPlural, colM)
             message = u'%s\n%s' % (message, m)
@@ -477,7 +479,6 @@ the link below and accept this invitation.''' % self.groupInfo.name
         assert row['toAddr']
         
         user = None
-        result = {}
         new = 0
         
         email = row['toAddr'].strip()
@@ -522,7 +523,9 @@ the link below and accept this invitation.''' % self.groupInfo.name
             self.set_delivery_for_user(userInfo, delivery)
             error = False
             m = u'Created a profile for %s' % userInfo_to_anchor(userInfo)
-            
+        # Commit whatever changes we've made for this row.
+        transaction.commit()
+        
         result = {'error':      error,
                   'message':    m,
                   'user':       user,
@@ -627,9 +630,9 @@ class ProfileList(object):
         retval = [SimpleTerm(self.properties[p], p, self.properties[p].title)
                   for p in self.properties.keys()]
         for term in retval:
-              assert term
-              assert ITitledTokenizedTerm in providedBy(term)
-              assert term.value.title == term.title
+            assert term
+            assert ITitledTokenizedTerm in providedBy(term)
+            assert term.value.title == term.title
         return iter(retval)
 
     def __len__(self):
@@ -638,7 +641,6 @@ class ProfileList(object):
 
     def __contains__(self, value):
         """See zope.schema.interfaces.IBaseVocabulary"""
-        retval = False
         retval = value in self.properties
         assert type(retval) == bool
         return retval

@@ -7,7 +7,6 @@ from Products.XWFCore.XWFUtils import convert_int2b62
 from gs.profile.notify.interfaces import IGSNotifyUser
 from gs.profile.notify.adressee import Addressee, SupportAddressee
 from queries import InvitationQuery
-from utils import invite_id
 from invitationmessagecontentprovider import InvitationMessageContentProvider
 from createinvitation import create_invitation_message
 
@@ -87,7 +86,7 @@ class Inviter(object):
         ###
         ### --=mpj17=-- UGLY HACK --=mpj17=--
         ###
-        ### Sometimes a persion is invited who has an existing profile
+        ### Sometimes a person is invited who has an existing profile
         ### but all his or her email addresses are unverified. If this 
         ### is the case we will send the invitation anyway. With **luck**
         ### the user will only have **one** (un, uno, I, 1) address,
