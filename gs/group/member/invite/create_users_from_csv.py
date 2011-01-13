@@ -500,6 +500,7 @@ the link below and accept this invitation.''' % self.groupInfo.name
                 new = 1
                 inviteId = inviter.create_invitation(row, False)
                 auditor.info(INVITE_OLD_USER, email)
+                transaction.commit()
                 inviter.send_notification(self.subject, self.message, 
                     inviteId, self.fromAddr, email)
                 self.set_delivery_for_user(userInfo, delivery)
@@ -518,13 +519,12 @@ the link below and accept this invitation.''' % self.groupInfo.name
             auditor, inviter = self.get_auditor_inviter(userInfo)
             inviteId = inviter.create_invitation(row, True)
             auditor.info(INVITE_NEW_USER, email)
+            transaction.commit()
             inviter.send_notification(self.subject, self.message, 
                 inviteId, self.fromAddr, email)
             self.set_delivery_for_user(userInfo, delivery)
             error = False
             m = u'Created a profile for %s' % userInfo_to_anchor(userInfo)
-        # Commit whatever changes we've made for this row.
-        transaction.commit()
         
         result = {'error':      error,
                   'message':    m,
