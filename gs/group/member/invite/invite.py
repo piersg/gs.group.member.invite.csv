@@ -2,10 +2,7 @@
 '''The form that allows an admin to invite a new person to join a group.'''
 from zope.component import createObject
 from zope.formlib import form
-try:
-    from five.formlib.formbase import PageForm
-except ImportError:
-    from Products.Five.formlib.formbase import PageForm
+from five.formlib.formbase import PageForm
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
@@ -15,8 +12,9 @@ from Products.GSGroupMember.groupmembership import user_member_of_group
 from Products.GSProfile.edit_profile import select_widget, wym_editor_widget
 from Products.GSProfile.utils import create_user_from_email, \
     enforce_schema
-from Products.GSProfile.emailaddress import NewEmailAddress, \
+from gs.profile.email.base.emailaddress import NewEmailAddress, \
     EmailAddressExists
+from gs.profile.email.base.emailuser import EmailUser
 from gs.content.form.radio import radio_widget
 from utils import set_digest
 from invitefields import InviteFields
@@ -53,7 +51,8 @@ class InviteEditProfileForm(PageForm):
         
     @property
     def defaultFromEmail(self):
-        retval = self.adminInfo.user.get_preferredEmailAddresses()[0]
+        emailUser = EmailUser(self.context, self.adminInfo)
+        retval = emailUser.get_delivery_addresses()[0]
         return retval
         
     def setUpWidgets(self, ignore_request=False):

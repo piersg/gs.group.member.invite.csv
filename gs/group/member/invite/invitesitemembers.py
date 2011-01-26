@@ -1,9 +1,5 @@
 # coding=utf-8
-try:
-    from five.formlib.formbase import PageForm
-except ImportError:
-    from Products.Five.formlib.formbase import PageForm
-    
+from five.formlib.formbase import PageForm
 from zope.component import createObject
 from zope.formlib import form
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
@@ -11,6 +7,7 @@ from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.GSProfile.edit_profile import multi_check_box_widget
 from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope
 from gs.content.form.radio import radio_widget
+from gs.profile.email.base.emailuser import EmailUser
 from interfaces import IGSInviteSiteMembers
 from inviter import Inviter
 from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER
@@ -51,7 +48,8 @@ class GSInviteSiteMembersForm(PageForm):
 
     @property
     def defaultFromEmail(self):
-        retval = self.adminInfo.user.get_preferredEmailAddresses()[0]
+        emailUser = EmailUser(self.context, self.adminInfo)
+        retval = emailUser.get_delivery_addresses()[0]
         return retval
         
     def setUpWidgets(self, ignore_request=False):

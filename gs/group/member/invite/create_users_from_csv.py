@@ -24,7 +24,8 @@ from Products.GSProfile import interfaces as profileSchemas
 from Products.GSProfile.utils import create_user_from_email, \
     enforce_schema
 from Products.GSProfile.interfaceCoreProfile import deliveryVocab
-from Products.GSProfile.emailaddress import NewEmailAddress, \
+from gs.profile.email.base.emailuser import EmailUser
+from gs.profile.email.base.emailaddress import NewEmailAddress, \
     NotAValidEmailAddress, DisposableEmailAddressNotAllowed, \
     EmailAddressExists
 from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER, \
@@ -107,7 +108,9 @@ class CreateUsersForm(BrowserView):
     @property
     def fromAddr(self):
         if self.__fromAddr == None:
-            self.__fromAddr = self.adminInfo.user.get_emailAddresses()[0]
+            eu = EmailUser(self.context, self.adminInfo)
+            addrs = eu.get_addresses()
+            self.__fromAddr = addrs and addrs[0] or ''
         return self.__fromAddr
     @property
     def subject(self):

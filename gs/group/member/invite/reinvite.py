@@ -2,15 +2,13 @@
 '''The form that allows an admin to re-invite a new person to join a group.'''
 from zope.component import createObject
 from zope.formlib import form
-try:
-    from five.formlib.formbase import PageForm
-except ImportError:
-    from Products.Five.formlib.formbase import PageForm
+from five.formlib.formbase import PageForm
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope
 from Products.GSGroup.groupInfo import groupInfo_to_anchor
 from Products.GSGroupMember.groupMembersInfo import GSGroupMembersInfo
+from gs.profile.email.base.emailuser import EmailUser
 from inviter import Inviter
 from audit import Auditor, INVITE_OLD_USER, INVITE_EXISTING_MEMBER
 from interfaces import IGSResendInvitation
@@ -38,12 +36,16 @@ class ResendInvitationForm(PageForm):
         
     @property
     def defaultFromEmail(self):
-        retval = self.adminInfo.user.get_preferredEmailAddresses()[0]
+        emailUser = EmailUser(self.context, self.adminInfo)
+        addrs = emailUser.get_delivery_addresses()
+        retval = addrs and addrs[0] or ''
         return retval
       
     @property
     def defaultToEmail(self):
-        retval = self.userInfo.user.get_emailAddresses()[0]
+        emailUser = EmailUser(self.context, self.userInfo)
+        addrs = emailUser.get_addresses()
+        retval = addrs and addrs[0] or ''
         return retval
         
     def setUpWidgets(self, ignore_request=False):

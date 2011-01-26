@@ -6,6 +6,7 @@ from zope.contentprovider.tales import addTALNamespaceData
 from Products.XWFCore.XWFUtils import convert_int2b62
 from gs.profile.notify.interfaces import IGSNotifyUser
 from gs.profile.notify.adressee import Addressee, SupportAddressee
+from gs.profile.email.base.emailuser import EmailUser
 from queries import InvitationQuery
 from invitationmessagecontentprovider import InvitationMessageContentProvider
 from createinvitation import create_invitation_message
@@ -97,7 +98,8 @@ class Inviter(object):
         ### See <https://projects.iopen.net/groupserver/ticket/514>
         ###
         if not addrs:
-            addrs = self.userInfo.user.get_emailAddresses()
+            eu = EmailUser(self.context, self.userInfo)
+            addrs = eu.get_addresses()
         ### END(hack) (* Modula-2 Geek *)
         return addrs
 
