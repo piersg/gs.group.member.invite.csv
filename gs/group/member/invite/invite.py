@@ -1,5 +1,6 @@
 # coding=utf-8
 '''The form that allows an admin to invite a new person to join a group.'''
+from email.utils import parseaddr
 from zope.component import createObject
 from zope.formlib import form
 from five.formlib.formbase import PageForm
@@ -129,22 +130,23 @@ this invitation.''' % self.groupInfo.name
         
         acl_users = self.context.acl_users
         toAddr = data['toAddr'].strip()
+        addrName, addr = parseaddr(toAddr)
         
         emailChecker = NewEmailAddress(title=u'Email')
         emailChecker.context = self.context
-        e = u'<code class="email">%s</code>' % toAddr
+        e = u'<code class="email">%s</code>' % addr
         g = groupInfo_to_anchor(self.groupInfo)
         
         try:
-            emailChecker.validate(toAddr)
+            emailChecker.validate(toAddr) # Can handle a full address
         except EmailAddressExists, errorVal:
-            user = acl_users.get_userByEmail(toAddr)
-            assert user, 'User for address <%s> not found' % toAddr
+            user = acl_users.get_userByEmail(addr) # Cannot
+            assert user, 'User for address <%s> not found' % addr
             userInfo = IGSUserInfo(user)
             u = userInfo_to_anchor(userInfo)
             auditor, inviter = self.get_auditor_inviter(userInfo)
             if user_member_of_group(user, self.groupInfo):
-                auditor.info(INVITE_EXISTING_MEMBER, toAddr)
+                auditor.info(INVITE_EXISTING_MEMBER, addr)
                 self.status=u'''<li>The person with the email address %s 
 &#8213; %s &#8213; is already a member of %s.</li>'''% (e, u, g)
                 self.status = u'%s<li>No changes to the profile of '\
@@ -154,7 +156,7 @@ this invitation.''' % self.groupInfo.name
                   u'the email address %s &#8213; %s &#8213; to join '\
                   u'%s.</li>'% (e, u, g)
                 inviteId = inviter.create_invitation(data, False)
-                auditor.info(INVITE_OLD_USER, toAddr)
+                auditor.info(INVITE_OLD_USER, addr)
                 inviter.send_notification(data['subject'], 
                     data['message'], inviteId, data['fromAddr'])
                 self.set_delivery(userInfo, data['delivery'])
@@ -165,9 +167,9 @@ this invitation.''' % self.groupInfo.name
             self.add_profile_attributes(userInfo, data)
             auditor, inviter = self.get_auditor_inviter(userInfo)
             inviteId = inviter.create_invitation(data, True)
-            auditor.info(INVITE_NEW_USER, toAddr)
+            auditor.info(INVITE_NEW_USER, addr)
             inviter.send_notification(data['subject'], data['message'], 
-                inviteId, data['fromAddr'], data['toAddr'])
+                inviteId, data['fromAddr'], addr)
             self.set_delivery(userInfo, data['delivery'])
             u = userInfo_to_anchor(userInfo)
             self.status = u'''<li>A profile for %s has been created, and
