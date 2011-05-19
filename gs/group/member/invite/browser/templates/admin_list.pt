@@ -1,0 +1,12 @@
+<li id="invite-links"><strong>Invite members</strong> to join 
+  <span class="group" tal:content="view/groupInfo/name">this group</span>.
+  <ol id="sitemembers">
+    <li><a href="admin_join.html"><strong>Enter</strong> the details
+        of a new member,</a></li>
+    <li><a href="admin_invite_site_members.html"><strong>Select</strong>
+        existing site members,</a> or</li>
+    <li><a href="admin_join_csv.html"><strong>Upload the details</strong>
+        of multiple members</a> using a CSV file.</li>
+  </ol>
+</li><!--invite-links-->
+

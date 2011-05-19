@@ -55,4 +55,12 @@
     name="gs.group.member.invite"
     permission="zope.Public" />
 
+  <!--The Admin Tab -->
+  <browser:viewlet name="gs-group-member-invite-home-admin-tab"
+    manager="gs.group.home.interfaces.IGroupHomepageAdminLinks"
+    template="browser/templates/admin_list.pt"
+    class="gs.group.member.base.viewlet.GroupAdminViewlet"
+    permission="zope2.Public"
+    weight="1"
+    title="Request" />
 </configure>
