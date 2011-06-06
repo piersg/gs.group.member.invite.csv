@@ -44,7 +44,6 @@ def create_invitation_message(fromAddr, toAddr, supportAddr, subject, message, i
     container['Subject'] = str(Header(subject, utf8))
     container['From'] = str(fromAddr)
     container['To'] = str(toAddr)
-    container['Reply-to'] = str(supportAddr)
     
     contentProvider.preview = False
     contentProvider.body = message
