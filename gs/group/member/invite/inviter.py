@@ -1,15 +1,17 @@
 # coding=utf-8
 from operator import concat
-import md5
 from time import asctime
+import md5
+from zope.cachedescriptors.property import Lazy
 from zope.contentprovider.tales import addTALNamespaceData
 from Products.XWFCore.XWFUtils import convert_int2b62
 from gs.profile.notify.interfaces import IGSNotifyUser
 from gs.profile.notify.adressee import Addressee, SupportAddressee
+from gs.profile.notify.sender import MessageSender
 from gs.profile.email.base.emailuser import EmailUser
 from queries import InvitationQuery
 from invitationmessagecontentprovider import InvitationMessageContentProvider
-from createinvitation import create_invitation_message
+from createinvitation import create_invitation_message  
 
 class Inviter(object):
     def __init__(self, context, request, userInfo, adminInfo, siteInfo, groupInfo):
@@ -19,14 +21,12 @@ class Inviter(object):
         self.adminInfo = adminInfo
         self.siteInfo = siteInfo
         self.groupInfo = groupInfo
-        self.__invitationQuery = self.__contentProvider = None
         
-    @property
+    @Lazy
     def invitationQuery(self):
-        if self.__invitationQuery == None:
-            da = self.context.zsqlalchemy
-            self.__invitationQuery = InvitationQuery(da)
-        return self.__invitationQuery
+        da = self.context.zsqlalchemy
+        retval = InvitationQuery(da)
+        return retval
 
     def create_invitation(self, data, initial):
         inviteId = self.new_invitation_id(data)
@@ -52,28 +52,33 @@ class Inviter(object):
         assert type(retval) == str
         return retval
     
-    @property
+    @Lazy
     def contentProvider(self):
-        if self.__contentProvider == None:
-            self.__contentProvider = \
-                InvitationMessageContentProvider(self.context, self.request, self)
-            self.context.vars = {} # --=mpj17=-- Ask me no questions\ldots
-            addTALNamespaceData(self.__contentProvider, self.context) # I tell you no lies.
-        return self.__contentProvider
+        retval = \
+            InvitationMessageContentProvider(self.context, self.request, self)
+        self.context.vars = {} # --=mpj17=-- Ask me no questions\ldots
+        addTALNamespaceData(retval, self.context) # I tell you no lies.
+        return retval
         
     def send_notification(self, subject, message, inviteId, fromAddr, toAddr=''):
         mfrom = fromAddr.strip()
         notifiedUser = IGSNotifyUser(self.userInfo)            
-        for mto in self.get_addrs(toAddr):
-            assert mto, 'No to address for %s (%s)' % \
-                (self.userInfo.name, self.userInfo.id)
-            assert mfrom, 'No from address' 
-            msg = create_invitation_message(
-                    Addressee(self.adminInfo, mfrom),
-                    Addressee(self.userInfo, mto), 
-                    SupportAddressee(self.context, self.siteInfo), 
-                    subject, message, inviteId, self.contentProvider)
-            notifiedUser.send_message(msg, mto, mfrom)
+        sender  = MessageSender(self.context, self.userInfo)
+
+        self.contentProvider.preview = False
+        self.contentProvider.body = message
+        self.contentProvider.invitationId = inviteId
+
+        self.contentProvider.text = True
+        self.contentProvider.update()
+        txt = self.contentProvider.render()
+
+        self.contentProvider.text = False
+        self.contentProvider.body = message.strip().replace('\n', '<br/>')
+        html = self.contentProvider.render()
+        
+        addrs = self.get_addrs(toAddr)
+        sender.send_message(subject, txt, html, fromAddr, addrs)
 
     def get_addrs(self, toAddr):
         notifiedUser = IGSNotifyUser(self.userInfo)            
