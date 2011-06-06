@@ -6,7 +6,6 @@ from zope.cachedescriptors.property import Lazy
 from zope.contentprovider.tales import addTALNamespaceData
 from Products.XWFCore.XWFUtils import convert_int2b62
 from gs.profile.notify.interfaces import IGSNotifyUser
-from gs.profile.notify.adressee import Addressee, SupportAddressee
 from gs.profile.notify.sender import MessageSender
 from gs.profile.email.base.emailuser import EmailUser
 from queries import InvitationQuery
