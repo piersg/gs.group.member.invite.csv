@@ -34,7 +34,6 @@
         Message Preview
         <a href="javascript:self.close()" id="close">Close</a>
       </p><pre id="header">
-<span id="reply-to"><strong class="name">Reply-to:</strong> <span tal:content="view/supportAddr">user@domain</span></span>
 <span id="from"><strong class="name">From:</strong>  <span tal:content="view/fromAddr">user@domain</span></span>
 <span id="to"><strong class="name">To:</strong> <span tal:content="view/toAddr">user@domain</span></span>
 <span id="subject"><strong class="name">Subject:</strong> <span tal:content="view/subject">The Subject</span></span></pre>
