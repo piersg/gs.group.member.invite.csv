@@ -10,7 +10,6 @@ from gs.profile.notify.sender import MessageSender
 from gs.profile.email.base.emailuser import EmailUser
 from queries import InvitationQuery
 from invitationmessagecontentprovider import InvitationMessageContentProvider
-from createinvitation import create_invitation_message  
 
 class Inviter(object):
     def __init__(self, context, request, userInfo, adminInfo, siteInfo, groupInfo):
