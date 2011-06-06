@@ -33,8 +33,12 @@ setup(name='gs.group.member.invite',
     zip_safe=False,
     install_requires=[
         'setuptools',
+        'gs.content.form',
+        'gs.profile.email.base',
         'gs.profile.notify',
         'Products.GSProfile',
+        'Products.XWFCore',
+        'Products.CustomUserFolder'
         # -*- Extra requirements: -*-
     ],
     entry_points="""
