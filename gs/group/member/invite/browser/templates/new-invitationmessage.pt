@@ -1,0 +1,136 @@
+<html tal:define="fakeHeader options/fakeHeader | python:True;
+  adminInfo options/adminInfo | view/loggedInUserInfo;
+  userInfo options/userInfo | view/loggedInUserInfo;
+  fromAddr python:options.get('fromAddr', None) or view.get_addr(adminInfo);
+  toAddr python:options.get('toAddr', None) or view.get_addr(userInfo);
+  invitationId options/invitationId | string:example;">
+  <head>
+    <title tal:content="view/siteInfo/name">Site</title>
+  </head>
+  <body style="font:13px Trebuchet,'Trebuchet MS',arial,helvetica,clean,sans-serif;line-height:1.385;color:black;background:white;">
+<pre style="background:#cccccc;padding:1.385em" tal:condition="fakeHeader"><strong>From: </strong><code tal:content="fromAddr">user@domain</code><br/>
+<strong>To: </strong> <span tal:content="toAddr">user@domain</span><br/>
+<strong>Subject: </strong> <span tal:content="view/subject">The Subject</span><br/></pre>
+    <h1 style="width:100%;border-bottom:thick solid black;margin-bottom:0.692em;"><a href="#"
+      style="color:black;text-decoration:none;"
+      tal:attributes="href view/siteInfo/url" 
+      tal:content="view/siteInfo/name">Site</a></h1>
+    <h2 style="font-size:207.7%;margin:0 0 1em 0;">Invitation to join
+      <span tal:content="view/groupInfo/name">This Group</span></h2>
+    <!--  Provide personalized content in social networking updates and 
+      -     reminders.
+            * Name-->
+    <p style="margin: 1.385em 0 1.385em 0;">
+      Dear
+      <span tal:content="userInfo/name">New Member</span>,
+    </p>
+    <p style="margin: 1.385em 0 1.385em 0;">
+      You have been invited to join 
+      <span tal:content="view/groupInfo/name">this group</span>.
+    </p>
+    <!--  When messages are sent from another member, use the member’s
+      -     name as the From information and allow the sender to include 
+      -     a personal note to the recipient.-->
+    <p style="margin: 1.385em 0 1.385em 0;">
+      <span tal:content="adminInfo/name">this administrator</span>
+      wrote the following message to you.
+    </p>
+    <blockquote style="margin:1.385em 0 1.385em 0;border-left:thick solid black;">
+      <p style="margin: 1.385em 0 1.385em 1.385em;">
+        Please accept this invitation to join OnlineGroups.Net Team. I
+        have set up a profile for you, so you can start participating
+        in the group as soon as you accept this invitation.
+      </p>
+    </blockquote>
+    <!--  When action is required, allow users to initiate it from the 
+      -     email.-->
+    <p style="margin: 1.385em 0 1.385em 0;">
+      Click on the following link to accept or decline this invitation:
+    </p>
+    <p style="margin: 1.385em 0 1.385em 0;"
+      tal:define="uri string:${view/siteInfo/url}/r/rsvp/${invitationId};
+        example python:invitationId=='example';">
+      <a tal:condition="example"
+        tal:attributes="onclick string:javascript:window.open('${uri}');"
+        href="#"><code tal:content="uri">URL</code></a>
+      <a tal:condition="not:example"
+        tal:attributes="href uri"
+        href="#"><code tal:content="uri">URL</code></a>
+    </p>
+    <!--  Provide details about the site or service in messages that 
+      -     non-members receive.
+      -     * Group name, short description, privacy, stats -->
+    <h3 style="font-size:138.5%;line-height: 1.5;">About 
+      <span tal:content="view/groupInfo/name">This Group</span></h3>
+    <div style="padding-left:1.385em;">
+      <p style="margin: 1.385em 0 1.385em 0;"
+        tal:define="rlg python:view.groupInfo.get_property('real_life_group')">
+        <span tal:content="view/groupInfo/name">The group</span> 
+        is an online group for
+        <span tal:content="rlg">real people doing real things</span>.
+        <tal:block define="groupId view/groupInfo/id"
+          replace="structure provider:groupserver.GroupStats">
+          The group stats.
+        </tal:block>
+      </p>
+      <tal:block define="groupId view/groupInfo/id"
+        replace="structure provider:groupserver.GroupPrivacy">
+        The group privacy.
+      </tal:block>
+    </div>
+    <!--  When a member is requesting to network, offer sufficient details 
+    -       about the individual.
+      -     * Name, photo, bio-->
+    <h3 style="font-size:138.5%;line-height: 1.5;">About 
+      <span tal:content="adminInfo/name">This Admin</span></h3>
+    <div style="padding-left:1.385em;">
+      <p style="margin: 1.385em 0 1.385em 0;">
+        <span tal:content="adminInfo/name">The administrator</span> 
+        is the administrator of
+        <span tal:content="view/groupInfo/name">the group</span>.
+        The main role of an administrator is to manage the members of
+        a group.
+      </p>
+      <tal:block
+        define="bio python:adminInfo.get_property('biography')"
+        condition="bio">
+        <p style="margin: 1.385em 0 1.385em 0;">
+          <strong>The biography</strong> of 
+          <span tal:content="adminInfo/name">the administrator</span> 
+          is below. 
+          (You can write your own biography once you accept the 
+          invitation!)
+        </p>
+        <blockquote tal:content="structure bio"
+          style="margin:1.385em 0 1.385em 0;padding-left:1.385em;border-left:thick solid black;">
+          Wow, I actually used a <code>blockquote</code> element!
+        </blockquote>
+      </tal:block>
+    </div>
+    <!--Troubleshooting/return/warranty/damage information-->
+    <p style="margin: 1.385em 0 1.385em 0;">
+      If you have any problems, email us at
+      <a tal:attributes="href view/supportEmail"
+        href="#"><code tal:content="view/siteInfo/get_support_email">this 
+            address</code></a>
+    </p>
+    <!--Website address-->
+    <p style="margin: 1.385em 0 1.385em 0;">
+      Kind regards<br/>
+      <span style="padding:0 0 0 1.385em;">The 
+        <span tal:content="view/siteInfo/name">Site</span> 
+      Team</span>
+    </p>
+    <hr/>
+    <!--Terms and conditions-->
+    <p style="margin: 1.385em 0 1.385em 0;">
+      <a tal:attributes="href string:${view/siteInfo/url}/policies/privacy"
+        href="#">Privacy</a> | 
+      <a tal:attributes="href string:${view/siteInfo/url}/policies/aup"
+        href="#">Acceptable Use</a> | 
+      <a tal:attributes="href string:${view/siteInfo/url}/policies/tos"
+        href="#">Terms of Service</a>
+    </p>
+  </body>
+</html>
+

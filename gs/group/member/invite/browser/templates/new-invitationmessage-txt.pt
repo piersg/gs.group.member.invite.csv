@@ -1,0 +1,34 @@
+<tal:block define="fakeHeader options/fakeHeader | python:True;
+  adminInfo options/adminInfo | view/loggedInUserInfo;
+  userInfo options/userInfo | view/loggedInUserInfo;
+  fromAddr python:options.get('fromAddr', None) or view.get_addr(adminInfo);
+  toAddr python:options.get('toAddr', None) or view.get_addr(userInfo);
+  invitationId options/invitationId | string:example;">Dear <tal:block content="userInfo/name">New Member</tal:block>,
+
+You have been invited to join <tal:block content="view/groupInfo/name">this group</tal:block>. 
+<tal:block content="adminInfo/name">this administrator</tal:block> wrote the
+following message to you.
+  <tal:block>
+    Please accept this invitation to join OnlineGroups.Net Team. I
+    have set up a profile for you, so you can start participating
+    in the group as soon as you accept this invitation.
+  </tal:block>
+
+Click on the following link to accept or decline this invitation:
+  <tal:block content="string:${view/siteInfo/url}/r/rsvp/${invitationId}">URL</tal:block>
+
+Kind regards
+  The <tal:block content="view/siteInfo/name">Site</tal:block> Team
+
+------------------------------------------------------------------------
+
+Privacy
+  <tal:block content="string:${view/siteInfo/url}/policies/privacy"/>
+
+Acceptable Use
+  <tal:block content="string:${view/siteInfo/url}/policies/aup"/>
+
+Terms of Service
+  <tal:block content="string:${view/siteInfo/url}/policies/tos"/>
+</tal:block>
+
