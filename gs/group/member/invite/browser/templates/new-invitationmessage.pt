@@ -1,16 +1,24 @@
 <html tal:define="fakeHeader options/fakeHeader | python:True;
   adminInfo options/adminInfo | view/loggedInUserInfo;
   userInfo options/userInfo | view/loggedInUserInfo;
-  fromAddr python:options.get('fromAddr', None) or view.get_addr(adminInfo);
-  toAddr python:options.get('toAddr', None) or view.get_addr(userInfo);
-  invitationId options/invitationId | string:example;">
+  fromAddr python:options.get('fromAddr', None) or view.request.form.get('form.fromAddr', None) or view.get_addr(adminInfo);
+  toAddr python:options.get('toAddr', None) or view.request.form.get('form.toAddr', None) or view.get_addr(userInfo);
+  subject options/subject | view/request/form/form.subject | view/defaultSubject;
+  invitationId options/invitationId | string:example;
+  message options/message | view/request/form/form.message | view/defaultMessage">
   <head>
     <title tal:content="view/siteInfo/name">Site</title>
   </head>
   <body style="font:13px Trebuchet,'Trebuchet MS',arial,helvetica,clean,sans-serif;line-height:1.385;color:black;background:white;">
-<pre style="background:#cccccc;padding:1.385em" tal:condition="fakeHeader"><strong>From: </strong><code tal:content="fromAddr">user@domain</code><br/>
+  <tal:block condition="fakeHeader">
+    <p style="text-align:right;">Message Preview 
+      <a style="padding:0 1.385em;" href="javascript:self.close()" 
+        id="close">Close</a>
+    </p>  
+    <pre style="background:#cccccc;padding:1.385em;"><strong>From: </strong><code tal:content="fromAddr">user@domain</code><br/>
 <strong>To: </strong> <span tal:content="toAddr">user@domain</span><br/>
-<strong>Subject: </strong> <span tal:content="view/subject">The Subject</span><br/></pre>
+<strong>Subject: </strong> <span tal:content="subject">The Subject</span><br/></pre>
+  </tal:block>
     <h1 style="width:100%;border-bottom:thick solid black;margin-bottom:0.692em;"><a href="#"
       style="color:black;text-decoration:none;"
       tal:attributes="href view/siteInfo/url" 
@@ -35,12 +43,9 @@
       <span tal:content="adminInfo/name">this administrator</span>
       wrote the following message to you.
     </p>
-    <blockquote style="margin:1.385em 0 1.385em 0;border-left:thick solid black;">
-      <p style="margin: 1.385em 0 1.385em 1.385em;">
-        Please accept this invitation to join OnlineGroups.Net Team. I
-        have set up a profile for you, so you can start participating
-        in the group as soon as you accept this invitation.
-      </p>
+    <blockquote style="margin:1.385em 0 1.385em 0;border-left:thick solid black;"
+      tal:content="structure python:view.format_message(message)">
+      Replace me
     </blockquote>
     <!--  When action is required, allow users to initiate it from the 
       -     email.-->
