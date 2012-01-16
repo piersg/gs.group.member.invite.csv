@@ -50,10 +50,9 @@ class Inviter(object):
         
     def send_notification(self, subject, message, inviteId, fromAddr, toAddr=''):
         mfrom = fromAddr.strip()
-        addrs = self.get_addrs(toAddr)
-        for addr in addrs:
-            self.notifier.notify(self.adminInfo, self.userInfo, 
-                fromAddr, addr, inviteId, subject, message)
+        toAddrs = self.get_addrs(toAddr)
+        self.notifier.notify(self.adminInfo, self.userInfo, fromAddr, 
+                                toAddrs, inviteId, subject, message)
         
     @Lazy
     def notifier(self):
@@ -86,6 +85,7 @@ class Inviter(object):
             eu = EmailUser(self.context, self.userInfo)
             addrs = eu.get_addresses()
         ### END(hack) (* Modula-2 Geek *)
-        assert type(addr) == list
+        assert type(addrs) == list,\
+            'Returning a %s, rather than a list' % type(addrs)
         return addrs
 

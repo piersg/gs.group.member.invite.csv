@@ -40,21 +40,22 @@ class InvitationNotifier(object):
         assert retval
         return retval
                
-    def notify(self, adminInfo, userInfo, fromAddr, toAddr, invitationId, subject, message):
+    def notify(self, adminInfo, userInfo, fromAddr, toAddrs,
+                invitationId, subject, message):
         text = self.textTemplate(   adminInfo       = adminInfo,
                                     userInfo        = userInfo,
                                     fromAddr        = fromAddr,
-                                    toAddr          = toAddr,
+                                    toAddr          = toAddrs[0],
                                     subject         = subject,
                                     invitationId    = invitationId,
                                     message         = message)
         html = self.htmlTemplate(   adminInfo       = adminInfo,
                                     userInfo        = userInfo,
                                     fromAddr        = fromAddr,
-                                    toAddr          = toAddr,
+                                    toAddr          = toAddrs[0],
                                     subject         = subject,
                                     invitationId    = invitationId,
                                     message         = message)
         ms = MessageSender(self.context, userInfo)
-        ms.send_message(subject, text, html, fromAddr, toAddr)
+        ms.send_message(subject, text, html, fromAddr, toAddrs)
 
