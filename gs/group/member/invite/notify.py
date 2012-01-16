@@ -1,4 +1,5 @@
 # coding=utf-8
+from textwrap import TextWrapper
 from zope.component import createObject, getMultiAdapter
 from zope.cachedescriptors.property import Lazy
 from gs.profile.notify.sender import MessageSender
@@ -38,11 +39,22 @@ class InvitationNotifier(object):
                     name=self.htmlTemplateName)
         assert retval
         return retval
-        
-    def notify(self, userInfo):
-        subject = (u'Welcome to %s' % (self.groupInfo.name).encode(UTF8))
-        text = self.textTemplate(userInfo=userInfo)
-        html = self.htmlTemplate(userInfo=userInfo)
+               
+    def notify(self, adminInfo, userInfo, fromAddr, toAddr, invitationId, subject, message):
+        text = self.textTemplate(   adminInfo       = adminInfo,
+                                    userInfo        = userInfo,
+                                    fromAddr        = fromAddr,
+                                    toAddr          = toAddr,
+                                    subject         = subject,
+                                    invitationId    = invitationId,
+                                    message         = message)
+        html = self.htmlTemplate(   adminInfo       = adminInfo,
+                                    userInfo        = userInfo,
+                                    fromAddr        = fromAddr,
+                                    toAddr          = toAddr,
+                                    subject         = subject,
+                                    invitationId    = invitationId,
+                                    message         = message)
         ms = MessageSender(self.context, userInfo)
-        ms.send_message(subject, text, html)
+        ms.send_message(subject, text, html, fromAddr, toAddr)
 
