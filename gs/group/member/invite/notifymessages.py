@@ -32,6 +32,15 @@ class InvitationMessage(GroupPage):
         assert retval
         return retval
         
+    @Lazy
+    def defaultMessage(self):
+        retval = u'''<p style="margin: 1.385em 0 1.385em 1.385em;">
+        Please accept this invitation to join %s. I
+        have set up a profile for you, so you can start participating
+        in the group as soon as you accept this 
+        invitation.</p>''' % self.groupInfo.name
+        return retval.encode(UTF8)
+
     
 class InvitationMessageText(InvitationMessage):
     def __init__(self, context, request):
@@ -41,4 +50,12 @@ class InvitationMessageText(InvitationMessage):
         filename = 'invitation-to-%s.txt' % self.groupInfo.name
         response.setHeader('Content-Disposition',
                             'inline; filename="%s"' % filename)
+
+    @Lazy
+    def defaultMessage(self):
+        retval = u'    Please accept this invitation to join %s.\n' \
+            u'    I have set up a profile for you, so you can start '\
+            u'participating\n    in the group as soon as you accept '\
+            u'this invitation.' % self.groupInfo.name
+        return retval.encode(UTF8)
 
