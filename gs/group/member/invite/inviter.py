@@ -3,13 +3,11 @@ from operator import concat
 from time import asctime
 import md5
 from zope.cachedescriptors.property import Lazy
-from zope.contentprovider.tales import addTALNamespaceData
 from Products.XWFCore.XWFUtils import convert_int2b62
 from gs.profile.notify.interfaces import IGSNotifyUser
-from gs.profile.notify.sender import MessageSender
 from gs.profile.email.base.emailuser import EmailUser
 from queries import InvitationQuery
-from invitationmessagecontentprovider import InvitationMessageContentProvider
+from notify import InvitationNotifier
 
 class Inviter(object):
     def __init__(self, context, request, userInfo, adminInfo, siteInfo, groupInfo):
@@ -49,34 +47,18 @@ class Inviter(object):
         assert retval
         assert type(retval) == str
         return retval
-    
-    @Lazy
-    def contentProvider(self):
-        retval = \
-            InvitationMessageContentProvider(self.context, self.request, self)
-        self.context.vars = {} # --=mpj17=-- Ask me no questions\ldots
-        addTALNamespaceData(retval, self.context) # I tell you no lies.
-        return retval
         
     def send_notification(self, subject, message, inviteId, fromAddr, toAddr=''):
         mfrom = fromAddr.strip()
-        notifiedUser = IGSNotifyUser(self.userInfo)            
-        sender  = MessageSender(self.context, self.userInfo)
-
-        self.contentProvider.preview = False
-        self.contentProvider.body = message
-        self.contentProvider.invitationId = inviteId
-
-        self.contentProvider.text = True
-        self.contentProvider.update()
-        txt = self.contentProvider.render()
-
-        self.contentProvider.text = False
-        self.contentProvider.body = message.strip().replace('\n', '<br/>')
-        html = self.contentProvider.render()
-        
         addrs = self.get_addrs(toAddr)
-        sender.send_message(subject, txt, html, fromAddr, addrs)
+        for addr in addrs:
+            self.notifier.notify(self.adminInfo, self.userInfo, 
+                fromAddr, addr, inviteId, subject, message)
+        
+    @Lazy
+    def notifier(self):
+        retval = InvitationNotifier(self.context, self.request)
+        return retval
 
     def get_addrs(self, toAddr):
         notifiedUser = IGSNotifyUser(self.userInfo)            
@@ -104,5 +86,6 @@ class Inviter(object):
             eu = EmailUser(self.context, self.userInfo)
             addrs = eu.get_addresses()
         ### END(hack) (* Modula-2 Geek *)
+        assert type(addr) == list
         return addrs
 
