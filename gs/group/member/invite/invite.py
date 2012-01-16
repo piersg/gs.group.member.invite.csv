@@ -1,15 +1,16 @@
 # coding=utf-8
 '''The form that allows an admin to invite a new person to join a group.'''
 from email.utils import parseaddr
+from zope.cachedescriptors.property import Lazy
 from zope.component import createObject
 from zope.formlib import form
-from five.formlib.formbase import PageForm
 from Products.Five.browser.pagetemplatefile import ZopeTwoPageTemplateFile
 from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope, abscompath
 from Products.GSGroup.groupInfo import groupInfo_to_anchor
 from gs.group.member.base.utils import user_member_of_group
+from gs.group.base.form import GroupForm
 from Products.GSProfile.edit_profile import select_widget, wym_editor_widget
 from Products.GSProfile.utils import create_user_from_email, \
     enforce_schema
@@ -20,35 +21,29 @@ from gs.content.form.radio import radio_widget
 from utils import set_digest
 from invitefields import InviteFields
 from inviter import Inviter
+from notifymessages import default_message, default_subject
 from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER, INVITE_EXISTING_MEMBER
 
 import gs.group.member.invite
 
-class InviteEditProfileForm(PageForm):
+class InviteEditProfileForm(GroupForm):
     label = u'Invite a New Group Member'
     pageTemplateFileName = abscompath(gs.group.member.invite,
                                       'browser/templates/edit_profile_invite.pt')
     template = ZopeTwoPageTemplateFile(pageTemplateFileName)
 
-    def __init__(self, context, request):
-        PageForm.__init__(self, context, request)
+    def __init__(self, group, request):
+        GroupForm.__init__(self, group, request)
+        self.inviteFields = InviteFields(group)
 
-        siteInfo = self.siteInfo = \
-          createObject('groupserver.SiteInfo', context)
-        self.__groupInfo = self.__formFields =  self.__config = None
-        self.__adminInfo = None
-        self.inviteFields = InviteFields(context)
-
-    @property
+    @Lazy
     def form_fields(self):
-        if self.__formFields == None:
-            self.__formFields = form.Fields(self.inviteFields.adminInterface, 
-                render_context=False)
-            tz = self.__formFields['tz']
-            tz.custom_widget = select_widget
-            self.__formFields['biography'].custom_widget = wym_editor_widget
-            self.__formFields['delivery'].custom_widget = radio_widget
-        return self.__formFields
+        retval = form.Fields(self.inviteFields.adminInterface, 
+                    render_context=False)
+        retval['tz'].custom_widget = select_widget
+        retval['biography'].custom_widget = wym_editor_widget
+        retval['delivery'].custom_widget = radio_widget
+        return retval
         
     @property
     def defaultFromEmail(self):
@@ -62,16 +57,8 @@ class InviteEditProfileForm(PageForm):
         siteTz = self.siteInfo.get_property('tz', 'UTC')
         defaultTz = self.groupInfo.get_property('tz', siteTz)
         data['tz'] = defaultTz
-
-        subject = u'An Invitation to Join %s' % self.groupInfo.name
-        data['subject'] = subject
-        
-        message = u'''Hi there!
-
-Please accept this invitation to join %s. I have set up a profile for
-you, so you can start participating in the group as soon as you accept
-this invitation.''' % self.groupInfo.name
-        data['message'] = message
+        data['subject'] = default_subject(self.groupInfo)
+        data['message'] = default_message(self.groupInfo)
         
         self.widgets = form.setUpWidgets(
             self.form_fields, self.prefix, self.context,
@@ -90,18 +77,8 @@ this invitation.''' % self.groupInfo.name
 
     # Non-Standard methods below this point
     @property
-    def groupInfo(self):
-        if self.__groupInfo == None:
-            self.__groupInfo = \
-                createObject('groupserver.GroupInfo', self.context)
-        return self.__groupInfo
-        
-    @property
     def adminInfo(self):
-        if self.__adminInfo == None:
-            self.__adminInfo = createObject('groupserver.LoggedInUser', 
-                self.context)
-        return self.__adminInfo
+        return self.loggedInUser
     
     @property
     def adminWidgets(self):
@@ -115,14 +92,12 @@ this invitation.''' % self.groupInfo.name
     def requiredProfileWidgets(self):
         widgets = self.inviteFields.get_profile_widgets(self.widgets)
         widgets = [widget for widget in widgets if widget.required == True]
-        
         return widgets
     
     @property
     def optionalProfileWidgets(self):
         widgets = self.inviteFields.get_profile_widgets(self.widgets)
         widgets = [widget for widget in widgets if widget.required == False]
-            
         return widgets
         
     def actual_handle_add(self, action, data):
@@ -158,7 +133,7 @@ this invitation.''' % self.groupInfo.name
                 inviteId = inviter.create_invitation(data, False)
                 auditor.info(INVITE_OLD_USER, addr)
                 inviter.send_notification(data['subject'], 
-                    data['message'], inviteId, data['fromAddr'])
+                    data['message'], inviteId, data['fromAddr']) # No to-addr
                 self.set_delivery(userInfo, data['delivery'])
         else:
             # Email address does not exist, but it is a legitimate address
@@ -169,7 +144,7 @@ this invitation.''' % self.groupInfo.name
             inviteId = inviter.create_invitation(data, True)
             auditor.info(INVITE_NEW_USER, addr)
             inviter.send_notification(data['subject'], data['message'], 
-                inviteId, data['fromAddr'], addr)
+                inviteId,  data['fromAddr'], addr) # Note the to-addr
             self.set_delivery(userInfo, data['delivery'])
             u = userInfo_to_anchor(userInfo)
             self.status = u'''<li>A profile for %s has been created, and
