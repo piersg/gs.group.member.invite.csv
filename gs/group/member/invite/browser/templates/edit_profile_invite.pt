@@ -115,18 +115,18 @@
         jQuery.noConflict()
         
         var popupPreview = function (event) {
-            var baseUri = 'admin_invitation_message_preview.html';
+            var baseUri = 'invitationmessage.html';
             var uri = null;
             var messageBody = null;
             var toAddr = null
             var fromAddr = null;
             var subject = null;
-            var specs = 'height=360,width=730,menubar=no,status=no,tolbar=no';
+            var specs = 'height=360,width=730,menubar=no,status=no,toolbar=no,scrollbars=yes';
             
             messageBody = jQuery('#form\\.message').val();
             messageBody = messageBody.replace(/\ /g, '%20');
             messageBody = messageBody.replace(/\n/g, '%0A');
-            uri = baseUri + '?form.body=' + messageBody;
+            uri = baseUri + '?form.message=' + messageBody;
             fromAddr = jQuery('#form\\.fromAddr').val();
             uri = uri + '&form.fromAddr=' + fromAddr;
             toAddr = jQuery('#form\\.toAddr').val();
