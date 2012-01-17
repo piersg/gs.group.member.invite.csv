@@ -6,11 +6,11 @@
   invitationId options/invitationId | string:example;
   message options/message | view/defaultMessage">Dear <tal:block content="userInfo/name">New Member</tal:block>,
 
-You have been invited to join <tal:block content="view/groupInfo/name">this group</tal:block>. 
-<tal:block content="adminInfo/name">this administrator</tal:block> wrote the
-following message to you.
+<tal:block
+  define="m string:You have been invited to join ${view/groupInfo/name}. ${adminInfo/name} wrote the following message to you."
+  content="python:view.format_message_no_indent(m)">Prologue</tal:block>
 
-<tal:block tal:content="message">Replace me</tal:block>
+<tal:block content="python:view.format_message(message)">Replace me</tal:block>
 
 Click on the following link to accept or decline this invitation:
   <tal:block content="string:${view/siteInfo/url}/r/rsvp/${invitationId}">URL</tal:block>

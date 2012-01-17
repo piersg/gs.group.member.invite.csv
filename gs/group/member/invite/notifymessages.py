@@ -1,4 +1,5 @@
 # coding=utf-8
+from textwrap import TextWrapper
 from urllib import urlencode
 from zope.cachedescriptors.property import Lazy
 from gs.group.base.page import GroupPage
@@ -37,11 +38,12 @@ class InvitationMessage(GroupPage):
         return retval
     
     def format_message(self, m):
-        return FormattedMessage(m).html
+        retval = FormattedMessage(m).html
+        return retval
     
     @Lazy
     def defaultSubject(self):
-        return default_subject(groupInfo)
+        return default_subject(self.groupInfo)
     
     @Lazy
     def defaultMessage(self):
@@ -59,7 +61,13 @@ class InvitationMessageText(InvitationMessage):
                             'inline; filename="%s"' % filename)
 
     def format_message(self, m):
-        return FormattedMessage(m).txt
+        retval = FormattedMessage(m).txt.rstrip()
+        return retval
+
+    def format_message_no_indent(self, m):
+        tw = TextWrapper()
+        retval = tw.fill(m)
+        return retval
         
 class FormattedMessage(object):
     def __init__(self, message):
@@ -75,11 +83,11 @@ class FormattedMessage(object):
 
     @Lazy
     def txt(self):
-        tw = TextWrapper(initial_indent = 4, subsequent_indent = 4)
+        tw = TextWrapper(initial_indent     = '    ', 
+                         subsequent_indent  = '    ')
         retval = ''
         for line in self.originalMessage.splitlines():
-            p = tw.wrap(line.strip())
+            p = tw.fill(line.strip())
             retval = '%s%s\n\n' % (retval, p)
-        retval = retval.strip()
         return retval
 
