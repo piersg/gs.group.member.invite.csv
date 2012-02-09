@@ -36,7 +36,8 @@ class InvitationNotifier(object):
     @Lazy
     def htmlTemplate(self):
         retval = getMultiAdapter((self.context, self.request), 
-                    name=self.htmlTemplateName)
+                    name=self.htmlTemplateName,
+                    fakeHeader=False)
         assert retval
         return retval
                
