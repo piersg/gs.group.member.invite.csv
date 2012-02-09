@@ -56,7 +56,7 @@ class InvitationNotifier(object):
                                     subject         = subject,
                                     invitationId    = invitationId,
                                     message         = message,
-,                                   fakeHeader      = False)
+                                    fakeHeader      = False)
         ms = MessageSender(self.context, userInfo)
         ms.send_message(subject, text, html, fromAddr, toAddrs)
 
