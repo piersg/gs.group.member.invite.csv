@@ -36,8 +36,7 @@ class InvitationNotifier(object):
     @Lazy
     def htmlTemplate(self):
         retval = getMultiAdapter((self.context, self.request), 
-                    name=self.htmlTemplateName,
-                    fakeHeader=False)
+                    name=self.htmlTemplateName)
         assert retval
         return retval
                
@@ -56,7 +55,8 @@ class InvitationNotifier(object):
                                     toAddr          = toAddrs[0],
                                     subject         = subject,
                                     invitationId    = invitationId,
-                                    message         = message)
+                                    message         = message,
+,                                   fakeHeader      = False)
         ms = MessageSender(self.context, userInfo)
         ms.send_message(subject, text, html, fromAddr, toAddrs)
 
