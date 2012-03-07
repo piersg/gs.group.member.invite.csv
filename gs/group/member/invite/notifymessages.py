@@ -7,10 +7,8 @@ from gs.profile.email.base.emailuser import EmailUser
 UTF8 = 'utf-8'
 
 def default_message(groupInfo):
-    return u'Please accept this invitation to join %s. I have set '\
-        u'up a profile for you, so you can start participating in '\
-        u'the group as soon as you accept this  invitation.' % \
-        groupInfo.name
+    return u'Please accept this invitation to join %s. I am inviting '\
+        u'you because...' % groupInfo.name
 
 def default_subject(groupInfo):
     return u'Invitation to join %s (Action required)' % groupInfo.name
