@@ -1,0 +1,57 @@
+<div id="gs-group-member-invite-new-member">
+  <h2>Invite a New Member</h2>
+  <p>People can join groups in three ways. 
+    They can <strong>join</strong> <em class="wordasword">public</em> 
+    groups.
+    They can <strong>request membership</strong> of
+    <em class="wordasword">private</em> groups.
+    Finally, you <em>must</em> <strong>invite</strong> them to join 
+    <em class="wordasword">secret</em> groups; you <em>may</em>
+    invite people to join
+    <em class="wordasword">public</em> groups and
+    <em class="wordasword">private</em> groups.
+    To invite someone to join a group carry out the following tasks.</p>
+  <ol>
+    <li>View the page for your group.
+      Log in if necessary.</li>
+    <li>Select the <samp class="tab">Admin</samp> tab, and click
+      <samp class="link">Enter the details of a new member</samp>.
+      The <cite class="page">Invite a New Member</cite> page will be
+      shown.</li>
+    <li>Create the invitation.
+      <p>
+        The invitation is an email from you to the person that you are
+        inviting.
+        To create the invitation you must carry out the following.
+      </p>
+      <ul>
+        <li>Enter the email address of the person you are inviting.</li>
+        <li>Write a personal message to the person you are inviting.</li>
+        <li>Select the message delivery options that the recipient of
+          the invitation should have <em>after</em> he or she accepts
+          the invitation.</li>
+        <li>Enter the details about the person you are inviting.</li>
+      </ul>
+      <p class="note"><strong class="label">Note:</strong>
+        It is best to make the message to the person you are 
+        inviting as personal as possible.
+        This will make the recipient more likely to respond, and it
+        more likely that Spam filters will allow the invitation to be
+        delivered.</p>
+    </li>
+    <li>Click the <samp class="button">Invite</samp> button.
+      An invitation message will be sent.
+      The message will include:
+      <ul>
+        <li>Your email address,</li>
+        <li>The personal message that you wrote,</li>
+        <li>Information about the group, including the number of 
+          members, the frequency of posting, and the privacy of
+          posts, and</li>
+        <li>Information about you and your role as an administrator
+          of the group.</li>
+      </ul>
+    </li>
+  </ol>
+</div><!--gs-group-member-invite-new-member-->
+

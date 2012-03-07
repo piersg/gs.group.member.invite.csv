@@ -76,4 +76,12 @@
     permission="zope2.Public"
     weight="1"
     title="Request" />
+
+  <!-- The Help -->
+  <browser:viewlet name="gs-group-member-invite-new-member"
+    manager="gs.help.interfaces.IAdminHelp"
+    template="browser/templates/help-new-member.pt"
+    permission="zope.Public"
+    weight="2" />
+
 </configure>
