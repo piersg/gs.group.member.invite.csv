@@ -1,6 +1,7 @@
 <html tal:define="fakeHeader options/fakeHeader | python:True;
   adminInfo options/adminInfo | view/loggedInUserInfo;
   userInfo options/userInfo | view/loggedInUserInfo;
+  toName python:view.request.form.get('form.toName', None) or userInfo.name;
   fromAddr python:options.get('fromAddr', None) or view.request.form.get('form.fromAddr', None) or view.get_addr(adminInfo);
   toAddr python:options.get('toAddr', None) or view.request.form.get('form.toAddr', None) or view.get_addr(userInfo);
   subject options/subject | view/request/form/form.subject | view/defaultSubject;
@@ -30,7 +31,7 @@
             * Name-->
     <p style="margin: 1.385em 0 1.385em 0;">
       Dear
-      <span tal:content="userInfo/name">New Member</span>,
+      <span tal:content="toName">New Member</span>,
     </p>
     <p style="margin: 1.385em 0 1.385em 0;">
       You have been invited to join 

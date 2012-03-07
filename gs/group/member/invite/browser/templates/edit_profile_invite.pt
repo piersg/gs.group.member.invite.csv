@@ -18,14 +18,14 @@
         tal:attributes="action request/URL" id="edit-profile">
         <h1 tal:content="view/label">Edit Profile</h1>
         <p>
-          To invite a new member to the group, enter the user's details
-          below and click the 
+          To invite a new member to the group, <strong>enter</strong>
+          his or her details below and click the 
           <samp class="button"
             tal:define="action python:[a for a in view.actions][0].label"
             tal:content="action">Big R</samp>
           button.              
-          A new member will be created, and the member will be sent an
-          email inviting him or her to join
+          A profile will be created, and an email will be sent inviting
+          the recipient to join
           <span class="group" 
             tal:content="python:view.groupInfo.name">this group</span>.
           You must fill out all required fields, which are marked 
@@ -35,8 +35,8 @@
         <div id="invitationRelatedFields">
           <h2>Invitation</h2>
           <p>
-            The new member will be sent an email (from you) inviting 
-            the new member to join 
+            An invitation is an email from you asking the recipient to
+            join 
             <span class="group" 
               tal:content="python:view.groupInfo.name">this group</span>.
             You can customise the message below.
@@ -73,7 +73,7 @@
           <p>The following fields are the standard profile fields on
             <span class="site" 
               tal:content="python:view.siteInfo.name">this site</span>.
-            You must fill out all required fields, but you can ignore 
+            You must fill out all required fields; you may ignore 
             the other fields.</p>
           <tal:block define="widgets view/requiredProfileWidgets">
             <tal:block
@@ -118,10 +118,10 @@
             var baseUri = 'invitationmessage.html';
             var uri = null;
             var messageBody = null;
-            var toAddr = null
+            var toAddr = null;
+            var toname = null;
             var fromAddr = null;
             var subject = null;
-            var specs = 'height=360,width=730,menubar=no,status=no,toolbar=no,scrollbars=yes';
             
             messageBody = jQuery('#form\\.message').val();
             messageBody = messageBody.replace(/\ /g, '%20');
@@ -131,10 +131,13 @@
             uri = uri + '&form.fromAddr=' + fromAddr;
             toAddr = jQuery('#form\\.toAddr').val();
             uri = uri + '&form.toAddr=' + toAddr;
+            toName = jQuery('#form\\.fn').val() || '[Invited Person]';
+            uri = uri + '&form.toName=' + toName;
             subject = jQuery('#form\\.subject').val();
             uri = uri + '&form.subject=' + subject.replace(/ /g, '%20');
             
-            window.open(uri, 'Message Preview', specs)
+            window.open(uri, 'Message Preview', 
+                'height=360,width=730,menubar=no,status=no,toolbar=no,scrollbars=yes');
         }
         
         jQuery(document).ready( function () {
