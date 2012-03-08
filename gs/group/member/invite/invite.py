@@ -9,11 +9,11 @@ from Products.CustomUserFolder.interfaces import IGSUserInfo
 from Products.CustomUserFolder.userinfo import userInfo_to_anchor
 from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope, abscompath
 from Products.GSGroup.groupInfo import groupInfo_to_anchor
-from gs.group.member.base.utils import user_member_of_group
-from gs.group.base.form import GroupForm
 from Products.GSProfile.edit_profile import select_widget, wym_editor_widget
 from Products.GSProfile.utils import create_user_from_email, \
     enforce_schema
+from gs.group.member.base.utils import user_member_of_group
+from gs.group.base.form import GroupForm
 from gs.profile.email.base.emailaddress import NewEmailAddress, \
     EmailAddressExists
 from gs.profile.email.base.emailuser import EmailUser
@@ -24,7 +24,7 @@ from inviter import Inviter
 from notifymessages import default_message, default_subject
 from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER, INVITE_EXISTING_MEMBER
 
-import gs.group.member.invite
+import gs.group.member.invite # For the abscompath call below
 
 class InviteEditProfileForm(GroupForm):
     label = u'Invite a New Group Member'
