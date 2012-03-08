@@ -42,6 +42,7 @@ class InvitationNotifier(object):
                
     def notify(self, adminInfo, userInfo, fromAddr, toAddrs,
                 invitationId, subject, message):
+        assert toAddrs, 'No to address for %s' % userInfo.name
         text = self.textTemplate(   adminInfo       = adminInfo,
                                     userInfo        = userInfo,
                                     fromAddr        = fromAddr,
