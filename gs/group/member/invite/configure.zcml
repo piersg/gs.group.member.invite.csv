@@ -36,12 +36,19 @@
     template="browser/templates/admin_create_users_from_csv.pt"
     permission="zope2.ManageUsers"/>
 
+  <!-- The Invite Site Member Page -->
+  <!--    The vocabulary of site members that are not group members-->
+  <utility
+      provides="zope.schema.interfaces.IVocabularyFactory"
+      component=".sitemembernongroupmember.SiteMembersNonGroupMembers"
+      name="groupserver.InviteMembersNonGroupMembers" />
   <browser:page 
     for="Products.XWFChat.interfaces.IGSGroupFolder"
     name="admin_invite_site_members.html"
     class=".invitesitemembers.GSInviteSiteMembersForm"
     permission="zope2.ManageUsers"/>
 
+  <!--Notifications -->
   <browser:page
     for="Products.XWFChat.interfaces.IGSGroupFolder"
     name="admin_invitation_message_preview.html"
