@@ -9,6 +9,7 @@ from Products.XWFCore.XWFUtils import get_the_actual_instance_from_zope
 from gs.content.form.radio import radio_widget
 from gs.profile.email.base.emailuser import EmailUser
 from interfaces import IGSInviteSiteMembers
+from notifymessages import default_message, default_subject
 from inviter import Inviter
 from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER
 
@@ -55,15 +56,8 @@ class GSInviteSiteMembersForm(PageForm):
     def setUpWidgets(self, ignore_request=False):
         data = {'fromAddr': self.defaultFromEmail,
                 'delivery': 'email'}
-        subject = u'An Invitation to Join %s' % self.groupInfo.name
-        data['subject'] = subject
-        
-        message = u'''Hi there!
-
-Please accept this invitation to join %s. Everything is 
-ready to go, so you can start participating in the group as soon as you 
-click the link below and accept this invitation.''' % self.groupInfo.name
-        data['message'] = message
+        data['subject'] = default_subject(self.groupInfo)
+        data['message'] = default_message(self.groupInfo)
         
         self.widgets = form.setUpWidgets(
             self.form_fields, self.prefix, self.context,
