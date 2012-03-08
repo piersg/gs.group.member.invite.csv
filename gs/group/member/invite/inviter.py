@@ -60,7 +60,7 @@ class Inviter(object):
         return retval
 
     def get_addrs(self, toAddr):
-        notifiedUser = IGSNotifyUser(self.userInfo)            
+        notifiedUser = IGSNotifyUser(self.userInfo)
         try:
             addrs = notifiedUser.get_addresses()
         except AssertionError, assErr:
