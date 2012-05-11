@@ -28,9 +28,9 @@ from gs.profile.email.base.emailuser import EmailUser
 from gs.profile.email.base.emailaddress import NewEmailAddress, \
     NotAValidEmailAddress, DisposableEmailAddressNotAllowed, \
     EmailAddressExists
-from audit import Auditor, INVITE_NEW_USER, INVITE_OLD_USER, \
-    INVITE_EXISTING_MEMBER
-from inviter import Inviter
+from gs.group.member.invite.base.audit import Auditor, INVITE_NEW_USER, \
+                                      INVITE_OLD_USER, INVITE_EXISTING_MEMBER
+from gs.group.member.invite.base.inviter import Inviter
 
 import logging
 log = logging.getLogger('GSCreateUsersFromCSV')

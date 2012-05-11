@@ -5,10 +5,9 @@ from version import get_version
 
 version = get_version()
 
-setup(name='gs.group.member.invite',
+setup(name='gs.group.member.invite.csv',
     version=version,
-    description="The pages that are required to invite people to "\
-      "join GroupServer groups.",
+    description="Invite people to a group using a CSV file",
     long_description=open("README.txt").read() + "\n" +
                     open(os.path.join("docs", "HISTORY.txt")).read(),
     classifiers=[
@@ -23,12 +22,12 @@ setup(name='gs.group.member.invite',
       "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords='sign up, registration, profile, user, join, invitation',
-    author='Michael JasonSmith',
-    author_email='mpj17@onlinegroups.net',
+    author='Richard Waid',
+    author_email='richard@onlinegroups.net',
     url='http://groupserver.org',
     license='ZPL',
     packages=find_packages(exclude=['ez_setup']),
-    namespace_packages=['gs', 'gs.group', 'gs.group.member'],
+    namespace_packages=['gs', 'gs.group', 'gs.group.member', 'gs.group.member.invite'],
     include_package_data=True,
     zip_safe=False,
     install_requires=[
