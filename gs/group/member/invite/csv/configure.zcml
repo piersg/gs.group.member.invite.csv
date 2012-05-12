@@ -6,8 +6,15 @@
 
   <browser:page 
     for="Products.XWFChat.interfaces.IGSGroupFolder"
-    name="admin_join_csv.html"
-    class=".create_users_from_csv.CreateUsersForm"
+    name="admin_join_invite_csv.html"
+    class=".create_users_from_csv.CreateUsersInviteForm"
+    template="browser/templates/admin_create_users_from_csv.pt"
+    permission="zope2.ManageUsers"/>
+
+  <browser:page 
+    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    name="admin_join_add_csv.html"
+    class=".create_users_from_csv.CreateUsersAddForm"
     template="browser/templates/admin_create_users_from_csv.pt"
     permission="zope2.ManageUsers"/>
 

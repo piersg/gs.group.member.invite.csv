@@ -32,10 +32,17 @@ from gs.group.member.invite.base.audit import Auditor, INVITE_NEW_USER, \
                                       INVITE_OLD_USER, INVITE_EXISTING_MEMBER
 from gs.group.member.invite.base.inviter import Inviter
 
+from gs.group.member.add.audit import ADD_NEW_USER, ADD_OLD_USER, ADD_EXISTING_MEMBER
+from gs.group.member.add.audit import Auditor as AddAuditor
+from gs.group.member.join.interfaces import IGSJoiningUser
+
 import logging
 log = logging.getLogger('GSCreateUsersFromCSV')
 
-class CreateUsersForm(BrowserView):
+class CreateUsersInviteForm(BrowserView):
+    # if this is set to true, we invite users. Otherwise we just add them.
+    invite = True
+
     def __init__(self, context, request):
         BrowserView.__init__(self, context, request)
 
@@ -49,6 +56,10 @@ class CreateUsersForm(BrowserView):
         self.__admin = self.__subject = self.__message =  None
         self.__fromAddr = self.__profileInterfaceName = None
         self.__profileFields = self.__requiredColumns = None
+
+    @property
+    def invite_only(self):
+        return self.invite
 
     @property
     def profileSchemaName(self):
@@ -139,6 +150,7 @@ the link below and accept this invitation.''' % self.groupInfo.name
             "'height=360,width=730,menubar=no,status=no,tolbar=no')" %\
             uri
         return js
+    
     def process_form(self):
         form = self.context.REQUEST.form
         result = {}
@@ -383,7 +395,7 @@ the link below and accept this invitation.''' % self.groupInfo.name
                   u'<strong>Unexpected Error:</strong> %s</li>' %\
                   (errorMessage, unicode(e))
             rowCount = rowCount + 1
-        
+       
         assert (existingUserCount + newUserCount + errorCount + \
           skippedUserCount) == rowCount,\
           'Discrepancy between counts: %d + %d + %d + %d != %d' %\
@@ -442,10 +454,12 @@ the link below and accept this invitation.''' % self.groupInfo.name
             
         result = {'error':      error,
                   'message':    message}
+
         assert result.has_key('error')
         assert type(result['error']) == bool
         assert result.has_key('message')
         assert type(result['message']) == unicode
+
         return result
 
     def process_row(self, row, delivery):
@@ -501,11 +515,22 @@ the link below and accept this invitation.''' % self.groupInfo.name
                 m = u'Skipped existing group member %s'% userInfo_to_anchor(userInfo)
             else:
                 new = 1
-                inviteId = inviter.create_invitation(row, False)
-                auditor.info(INVITE_OLD_USER, email)
-                transaction.commit()
-                inviter.send_notification(self.subject, self.message, 
-                    inviteId, self.fromAddr, email)
+                if self.invite:
+                    inviteId = inviter.create_invitation(row, False)
+                    auditor.info(INVITE_OLD_USER, email)
+                    inviter.send_notification(self.subject, self.message, 
+                        inviteId, self.fromAddr, email)
+                    transaction.commit()
+                else:
+                    # almighty hack
+                    # get the user object in the context of the group and site
+                    userInfo = createObject('groupserver.UserFromId',
+                                  self.groupInfo.groupObj,
+                                  user.id)
+                    auditor.info(ADD_OLD_USER, email)
+                    joininguser = IGSJoiningUser(userInfo)
+                    joininguser.join(self.groupInfo)
+                    transaction.commit()
                 self.set_delivery_for_user(userInfo, delivery)
                 m = u'%s has an existing profile' % userInfo_to_anchor(userInfo)
             error = False
@@ -520,11 +545,31 @@ the link below and accept this invitation.''' % self.groupInfo.name
             user = userInfo.user
             new = 2
             auditor, inviter = self.get_auditor_inviter(userInfo)
-            inviteId = inviter.create_invitation(row, True)
-            auditor.info(INVITE_NEW_USER, email)
-            transaction.commit()
-            inviter.send_notification(self.subject, self.message, 
-                inviteId, self.fromAddr, email)
+            if self.invite:
+                inviteId = inviter.create_invitation(row, True)
+                auditor.info(INVITE_NEW_USER, email)
+                transaction.commit()
+            
+                inviter.send_notification(self.subject, self.message, 
+                    inviteId, self.fromAddr, email)
+            else:
+                # almight hack
+                # get the user object in the context of the group and site
+                userInfo = createObject('groupserver.UserFromId',
+                                  self.groupInfo.groupObj,
+                                  user.id)
+                # force verify
+                vid = '%s-%s-verified' % (email, self.adminInfo.id)
+                evu = createObject('groupserver.EmailVerificationUserFromEmail',
+                                    self.context, email)
+                evu.add_verification_id(vid)
+                evu.verify_email(vid)
+
+                auditor.info(ADD_NEW_USER, email)
+                joininguser = IGSJoiningUser(userInfo)
+                
+                joininguser.join(self.groupInfo)
+
             self.set_delivery_for_user(userInfo, delivery)
             error = False
             m = u'Created a profile for %s' % userInfo_to_anchor(userInfo)
@@ -545,6 +590,7 @@ the link below and accept this invitation.''' % self.groupInfo.name
         assert result.has_key('new')
         assert type(result['new']) == int
         assert result['new'] in range(0, 5), '%d not in range'%result['new']
+
         return result
         
     def create_user(self, fields):
@@ -590,12 +636,24 @@ the link below and accept this invitation.''' % self.groupInfo.name
             userInfo.user.set_disableDeliveryByKey(self.groupInfo.id)
 
     def get_auditor_inviter(self, userInfo):
-        inviter = Inviter(self.context, self.request, userInfo, 
-                            self.adminInfo, self.siteInfo, 
-                            self.groupInfo)
-        auditor = Auditor(self.siteInfo, self.groupInfo, 
-                    self.adminInfo, userInfo)
+        if self.invite:
+            inviter = Inviter(self.context, self.request, userInfo, 
+                              self.adminInfo, self.siteInfo, 
+                              self.groupInfo)
+        else:
+            inviter = None
+            
+        if self.invite:
+            auditor = Auditor(self.siteInfo, self.groupInfo, 
+                              self.adminInfo, userInfo)
+        else:
+            auditor = AddAuditor(self.siteInfo, self.groupInfo,
+                                    self.adminInfo, userInfo)            
+
         return (auditor, inviter)
+
+class CreateUsersAddForm(CreateUsersInviteForm):
+    invite = False
 
 class ProfileList(object):
     implements(IVocabulary, IVocabularyTokenized)

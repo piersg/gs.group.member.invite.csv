@@ -16,18 +16,18 @@
       <form enctype="multipart/form-data"  method="post" action="."
         tal:attributes="action request/URL" id="edit-profile">
         
-        <h1>Invite New Group Members in Bulk</h1>
+        <h1 tal:condition="view/invite_only">Invite New Group Members in Bulk</h1>
+        <h1 tal:condition="not:view/invite_only">Add New Group Members in Bulk</h1>
         <p>
-          You can invite new members to join 
+          You can 
+          <tal:block tal:condition="view/invite_only">invite new members to join</tal:block>
+          <tal:block tal:condition="not:view/invite_only">add new members to</tal:block>
           <span class="group" 
             tal:content="view/groupInfo/name">this group</span>
           by adding them in bulk, using a spreadsheet.
-          It is more complex, and less flexible, than when you 
-          <a href="#"
-            tal:attributes="href string:${view/groupInfo/url}/admin_join.html">issue
-             an invitation to a single person,</a>
-          but it is worth it if you have to invite a lot of people.
-          There are five steps to inviting new group members.
+         </p>
+         <p tal:condition="not:view/invite_only"> 
+<b>Please note:</b> This should only be used when you have absolute certainty that the person wishes to be a member of the group, and you are certain of their details. If you are not, please use <a tal:attributes="href string:${view/groupInfo/url}/admin_join_invite_csv.html">Invite New Group Members in Bulk</a> instead.
         </p>
         <h2>Step 1: Create the CSV File</h2>
         <p>Create a CSV (comma-separated value) file.
@@ -137,6 +137,7 @@
           <label class="radioLabel" for="delivery.2">Web only</label>
         </div><!--value-->
         <div class="noFloat">&#160;</div>
+        <tal:block tal:condition="view/invite_only">
         <h2>Step 5: Invite the Members</h2>
         <p>
           Click the <samp class="button">Invite</samp> button to
@@ -156,10 +157,11 @@
             tal:content="structure provider:groupserver.InvitationMessage">
             Preview
           </pre><!--invite-message-preview-->
+        </tal:block>
         <input type="hidden" id="submitted" name="submitted" 
           class="hidden" value=""/>
         <input type="submit" id="create" name="create" class="button"
-          value="Invite"/>
+          tal:condition="python:view.invite_only and 'Invite' or 'Add'"/>
       </form>
     </div><!--gs-group-member-invite-csv-->
   </body>
