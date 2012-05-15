@@ -18,4 +18,16 @@
     template="browser/templates/admin_create_users_from_csv.pt"
     permission="zope2.ManageUsers"/>
 
+  <browser:page 
+    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    name="csv_to_json.html"
+    class=".csv_to_json.CSVJsonForm"
+    permission="zope2.ManageUsers"/>
+
+  <browser:page 
+    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    name="csv.json"
+    class=".csv_to_json.CSVJson"
+    permission="zope2.ManageUsers"/>
+
 </configure>
