@@ -18,12 +18,12 @@
     template="browser/templates/admin_create_users_from_csv.pt"
     permission="zope2.ManageUsers"/>
 
-  <browser:page 
+  <!--browser:page 
     for="Products.GSContent.interfaces.IGSSiteFolder"
     name="admin_join_add_csv.html"
     class=".create_users_from_csv.CreateUsersAddSiteForm"
     template="browser/templates/admin_create_users_from_csv_site.pt"
-    permission="zope2.ManageUsers"/>
+    permission="zope2.ManageUsers"/-->
 
   <browser:page 
     for="Products.XWFChat.interfaces.IGSGroupFolder"
