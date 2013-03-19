@@ -5,14 +5,14 @@
   i18n_domain="groupserver">
 
   <browser:page 
-    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    for="gs.group.base.interfaces.IGSGroupMarker"
     name="admin_join_invite_csv.html"
     class=".create_users_from_csv.CreateUsersInviteForm"
     template="browser/templates/admin_create_users_from_csv.pt"
     permission="zope2.ManageUsers"/>
 
   <browser:page 
-    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    for="gs.group.base.interfaces.IGSGroupMarker"
     name="admin_join_add_csv.html"
     class=".create_users_from_csv.CreateUsersAddForm"
     template="browser/templates/admin_create_users_from_csv.pt"
@@ -26,13 +26,13 @@
     permission="zope2.ManageUsers"/-->
 
   <browser:page 
-    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    for="gs.group.base.interfaces.IGSGroupMarker"
     name="csv_to_json.html"
     class=".csv_to_json.CSVJsonForm"
     permission="zope2.ManageUsers"/>
 
   <browser:page 
-    for="Products.XWFChat.interfaces.IGSGroupFolder"
+    for="gs.group.base.interfaces.IGSGroupMarker"
     name="csv.json"
     class=".csv_to_json.CSVJson"
     permission="zope2.ManageUsers"/>
