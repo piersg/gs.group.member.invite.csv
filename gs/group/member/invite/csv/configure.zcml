@@ -37,4 +37,13 @@
     class=".csv_to_json.CSVJson"
     permission="zope2.ManageUsers"/>
 
+  <!-- Link to the page -->
+  <browser:viewlet
+    name="gs-group-member-invite-csv-home-link"
+    manager="gs.group.member.info.interfaces.IGroupMemberAdminLinks"
+    template="browser/templates/link.pt"
+    class="gs.group.member.viewlet.GroupAdminViewlet"
+    permission="zope2.ManageUsers"
+    weight="15"
+    title="Invite Members by CSV" />
 </configure>
