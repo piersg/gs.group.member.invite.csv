@@ -4,7 +4,7 @@
 This may appear to be a big scary module, but do not worry. Most of it
 is devoted to writing the error message.'''
 import transaction
-from csv import DictReader
+from csv import DictReader, Error as CSVError
 from zope.component import createObject
 from zope.formlib import form
 from gs.content.form.utils import enforce_schema
@@ -357,43 +357,50 @@ the link below and accept this invitation.''' % self.groupInfo.name
         rowCount = 0
         csvResults.next()  # Skip the first row (the header)
         # Map the data into the correctly named columns.
-        for row in csvResults:
-            try:
-                r = self.process_row(row, delivery)
-                error = error or r['error']
+        try:
+            for row in csvResults:
+                try:
+                    r = self.process_row(row, delivery)
+                    error = error or r['error']
 
-                if r['error']:
+                    if r['error']:
+                        errorCount = errorCount + 1
+                        errorMessage = u'%s\n<li>%s</li>' %\
+                          (errorMessage, r['message'])
+                    elif r['new'] == 1:
+                        existingUserCount = existingUserCount + 1
+                        existingUserMessage = u'%s\n<li>%s</li>' %\
+                          (existingUserMessage, r['message'])
+                    elif r['new'] == 2:
+                        newUserCount = newUserCount + 1
+                        newUserMessage = u'%s\n<li>%s</li>' %\
+                          (newUserMessage, r['message'])
+                    elif r['new'] == 3:
+                        skippedUserCount = skippedUserCount + 1
+                        skippedUserMessage = u'%s\n<li>%s</li>' %\
+                          (skippedUserMessage, r['message'])
+                    else:
+                        assert False, 'Unexpected return value from process_'\
+                            'row: %d' % r['new']
+                except Exception, e:
+                    error = True
                     errorCount = errorCount + 1
-                    errorMessage = u'%s\n<li>%s</li>' %\
-                      (errorMessage, r['message'])
-                elif r['new'] == 1:
-                    existingUserCount = existingUserCount + 1
-                    existingUserMessage = u'%s\n<li>%s</li>' %\
-                      (existingUserMessage, r['message'])
-                elif r['new'] == 2:
-                    newUserCount = newUserCount + 1
-                    newUserMessage = u'%s\n<li>%s</li>' %\
-                      (newUserMessage, r['message'])
-                elif r['new'] == 3:
-                    skippedUserCount = skippedUserCount + 1
-                    skippedUserMessage = u'%s\n<li>%s</li>' %\
-                      (skippedUserMessage, r['message'])
-                else:
-                    assert False, 'Unexpected return value from process_'\
-                        'row: %d' % r['new']
-            except Exception, e:
-                error = True
-                errorCount = errorCount + 1
-                errorMessage = u'%s\n<li>'\
-                  u'<strong>Unexpected Error:</strong> %s</li>' %\
-                  (errorMessage, unicode(e))
-            rowCount = rowCount + 1
+                    m = u'{0}\n<li><strong>Unexpected Error:</strong> {1}</li>'
+                    errorMessage = m.format(errorMessage, unicode(e))
+                rowCount = rowCount + 1
 
-        assert (existingUserCount + newUserCount + errorCount +
-          skippedUserCount) == rowCount,\
-          'Discrepancy between counts: %d + %d + %d + %d != %d' %\
-            (existingUserCount, newUserCount, errorCount, skippedUserCount,
-             rowCount)
+                assert (existingUserCount + newUserCount + errorCount +
+                  skippedUserCount) == rowCount,\
+                  'Discrepancy between counts: %d + %d + %d + %d != %d' %\
+                    (existingUserCount, newUserCount, errorCount,
+                     skippedUserCount, rowCount)
+
+        except CSVError as csvError:
+            error = True
+            errorCount = errorCount + 1
+            m = u'{0}\n<li><strong>Error reading the CSV file:</strong> '\
+                u'{1}</li>'
+            errorMessage = m.format(errorMessage, unicode(csvError))
 
         message = u'<p>%d rows were processed.</p>\n<ul>\n' %\
           (rowCount + 1)
