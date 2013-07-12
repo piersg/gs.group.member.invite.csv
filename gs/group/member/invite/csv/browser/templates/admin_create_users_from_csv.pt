@@ -3,7 +3,7 @@
       xmlns:metal="http://xml.zope.org/namespaces/metal"
       metal:use-macro="context/@@groupserver_layout/page">
   <head>
-    <title metal:fill-slot="title">Invite New Group Members in Bulk</title>
+    <title metal:fill-slot="title">Invite new members in bulk</title>
   </head>
   <body>
     <div metal:fill-slot="messages"
@@ -38,8 +38,8 @@
           tal:define="inviteAdd python:'Invite' if view.invite_only else 'Add'">
       <h1>
         <span 
-          tal:content="inviteAdd">Add</span> New Group Members in Bulk
-      </h1>
+          tal:content="inviteAdd">Add</span> new group members in bulk
+      </H1>
       <p>
         You can 
         <span tal:condition="view/invite_only">invite new members to join</span>
@@ -54,12 +54,12 @@
         the group, and you are certain of their details. If you are not,
         please use 
         <a tal:attributes="href
-                           string:${view/groupInfo/url}/admin_join_invite_csv.html">Invite New Group Members in Bulk</a> instead.
+                           string:${view/groupInfo/url}/admin_join_invite_csv.html">Invite new group members in bulk</a> instead.
       </p>
       <div id="gs-group-member-invite-csv-create-csv" role="region"
            aria-labelledby="gs-group-member-invite-csv-create-csv-h">
         <h2 id="gs-group-member-invite-csv-create-csv-h">
-          Step 1: Create the CSV File
+          Step 1: Create the CSV file
         </h2>
         <p>Create a CSV (comma-separated value) file.
         The file needs to contain all the profile information of all
@@ -102,7 +102,7 @@
       <div id="gs-group-member-invite-csv-create-columns" role="region"
            aria-labelledby="gs-group-member-invite-csv-create-columns-h">
         <h2 id="gs-group-member-invite-csv-create-columns-h">
-          Step 3: Set the Columns
+          Step 3: Set the columns
         </h2>
         <p>Now set the columns up.
         The columns below <strong>must</strong> match the columns in
@@ -155,7 +155,7 @@
       <div id="gs-group-member-invite-csv-settings" role="region"
            aria-labelledby="gs-group-member-invite-csv-settings-h">
         <h2 id="gs-group-member-invite-csv-settings-h">
-          Step 4: Set the Message Delivery Settings
+          Step 4: Set the message delivery settings
         </h2>
         <p>
           By default, new members will receive an email every time
@@ -188,7 +188,7 @@
       <div id="gs-group-member-invite-csv-invite" role="region"
            aria-labelledby="gs-group-member-invite-csv-invite-h">
         <h2 id="gs-group-member-invite-csv-invite-h">
-          Step 5: <span tal:content="inviteAdd">Invite</span> the Members
+          Step 5: <span tal:content="inviteAdd">Invite</span> the members
         </h2>
         <tal:block tal:condition="view/invite_only">
           <p>
