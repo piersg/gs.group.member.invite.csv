@@ -355,7 +355,16 @@ the link below and accept this invitation.''' % self.groupInfo.name
         skippedUserCount = 0
         skippedUserMessage = u'<ul>\n'
         rowCount = 0
-        csvResults.next()  # Skip the first row (the header)
+        try:
+            csvResults.next()  # Skip the first row (the header)
+        except CSVError as csvError:
+            m = u'{0}\n<li><strong>Error reading the CSV header:</strong> '\
+                u'{1}</li>'
+            result = {'error': True,
+                      'message': m.format(errorMessage, unicode(csvError))}
+            # Sorry, Dijkstra
+            return result
+
         # Map the data into the correctly named columns.
         try:
             for row in csvResults:

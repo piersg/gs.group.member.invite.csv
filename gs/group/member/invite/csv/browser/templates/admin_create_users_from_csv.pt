@@ -32,10 +32,10 @@
         in bulk
       </li>
     </ul>
-    <form metal:fill-slot="body" id="gs-group-member-invite-csv"
-          enctype="multipart/form-data"  method="post" action="."
-          tal:define="inviteAdd python:'Invite' if view.invite_only else 'Add'"
-          tal:attributes="action request/URL">
+    <form metal:fill-slot="body" id="gs-group-member-invite-csv" 
+          enctype="multipart/form-data" method="post" action="." 
+          tal:attributes="action request/URL"
+          tal:define="inviteAdd python:'Invite' if view.invite_only else 'Add'">
       <h1>
         <span 
           tal:content="inviteAdd">Add</span> New Group Members in Bulk
