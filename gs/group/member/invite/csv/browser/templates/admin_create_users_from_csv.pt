@@ -10,8 +10,12 @@
          tal:define="result view/process_form;
                      isError python:result.get('error', False);"
          tal:condition="python:result and result.has_key('message')"
-         tal:attributes="class python:(isError and 'message-error') or 'message-result'"
-         tal:content="structure result/message"/>
+         tal:attributes="class python:'alert alert-error' if isError else 'alert'"
+         role="region">
+      <button aria-hidden="true" type="button" class="close" 
+              data-dismiss="alert">&times;</button>
+      <div tal:content="structure result/message">Message</div>
+    </div>
     <ul metal:fill-slot="breadcrumb">
       <li class="site">
         <a tal:attributes="title string:${view/siteInfo/name} Homepage"
