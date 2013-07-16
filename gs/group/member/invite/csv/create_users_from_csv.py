@@ -10,6 +10,7 @@ from gs.group.base import GroupPage
 from gs.profile.email.base.emailuser import EmailUser
 from Products.GSProfile import interfaces as profileSchemas
 from columns import Columns
+from profilelist import ProfileList
 from processor import CSVProcessor
 
 import logging
@@ -61,6 +62,16 @@ class CreateUsersInviteForm(GroupPage):
     @Lazy
     def profileFields(self):
         retval = formlib.Fields(self.profileSchema, render_context=False)
+        return retval
+
+    @Lazy
+    def profileList(self):
+        retval = ProfileList(self.context)
+        return retval
+
+    @Lazy
+    def requiredColumns(self):
+        retval = [p for p in self.profileList if p.value.required]
         return retval
 
     @property
