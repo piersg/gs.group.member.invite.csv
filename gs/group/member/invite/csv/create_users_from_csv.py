@@ -155,7 +155,7 @@ the link below and accept this invitation.'''
             result['message'] = u'\n'.join((result['message'], r['message']))
             result['error'] = result['error'] if result['error'] else r['error']
             columns = r['columns']
-            processor = CSVProcessor(form, columns)
+            processor = CSVProcessor(self.context, form, columns)
             #   2. Parse the file.
             if not result['error']:
                 r = processor.process()
