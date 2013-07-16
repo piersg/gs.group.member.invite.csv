@@ -32,7 +32,8 @@ class CreateUsersInviteForm(GroupPage):
     @Lazy
     def globalConfiguration(self):
         site_root = self.context.site_root()
-        assert hasattr(site_root, 'GlobalConfiguration')
+        assert hasattr(site_root, 'GlobalConfiguration'), \
+            'No GlobalConfiguration'
         retval = site_root.GlobalConfiguration
         return retval
 
@@ -42,10 +43,8 @@ class CreateUsersInviteForm(GroupPage):
 
     @Lazy
     def profileSchemaName(self):
-        site_root = self.context.site_root()
-        assert hasattr(site_root, 'GlobalConfiguration')
-        config = site_root.GlobalConfiguration
-        ifName = config.getProperty('profileInterface', 'IGSCoreProfile')
+        ifName = self.globalConfiguration.getProperty('profileInterface',
+                                                        'IGSCoreProfile')
         # --=mpj17=-- Sometimes profileInterface is set to ''
         ifName = (ifName and ifName) or 'IGSCoreProfile'
         retval = '%sAdminJoinCSV' % ifName
@@ -159,16 +158,24 @@ the link below and accept this invitation.'''
             #   2. Parse the file.
             if not result['error']:
                 r = processor.process()
-                m = u'{0}\n{1}'
-                result['message'] = m.format(result['message'], r['message'])
+                result['message'] = u'\n'.join((result['message'],
+                                                r['message']))
                 result['error'] = result['error'] or r['error']
                 csvResults = r['csvResults']
             #   3. Interpret the data.
             if not result['error']:
-                r = processor.process_csv_results(csvResults, form['delivery'])
-                m = u'{0}\n{1}'
-                result['message'] = m.format(result['message'], r['message'])
-                result['error'] = result['error'] or r['error']
+                try:
+                    r = processor.process_csv_results(csvResults,
+                                                        form['delivery'])
+                except UnicodeDecodeError, ude:
+                    result['error'] = True
+                    m = u'<p>Error reading the CSV file (did you select the '\
+                        u'correct file?): <span class="muted">{0}</p></p>'
+                    result['message'] = m.format(ude)
+                else:
+                    m = u'\n'.join((result['message'], r['message']))
+                    result['message'] = m
+                    result['error'] = result['error'] or r['error']
 
             assert 'error' in result
             assert type(result['error']) == bool
