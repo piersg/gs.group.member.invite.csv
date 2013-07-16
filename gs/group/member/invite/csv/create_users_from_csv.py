@@ -9,7 +9,8 @@ from zope.formlib import form as formlib
 from gs.group.base import GroupPage
 from gs.profile.email.base.emailuser import EmailUser
 from Products.GSProfile import interfaces as profileSchemas
-from profilelist import ProfileList
+from columns import Columns
+from processor import CSVProcessor
 
 import logging
 log = logging.getLogger('GSCreateUsersFromCSV')
@@ -21,11 +22,6 @@ class CreateUsersInviteForm(GroupPage):
 
     def __init__(self, group, request):
         super(CreateUsersInviteForm, self).__init__(group, request)
-
-    @Lazy
-    def profileList(self):
-        retval = ProfileList(self.context)
-        return retval
 
     @Lazy
     def acl_users(self):
@@ -143,20 +139,22 @@ the link below and accept this invitation.'''
 
             # Processing the CSV is done in three stages.
             #   1. Process the columns.
-            r = self.process_columns(form)
-            result['message'] = u'%s\n%s' % (result['message'], r['message'])
+            columnProcessor = Columns(self.context, form)
+            r = columnProcessor.process()
+            result['message'] = u'\n'.join((result['message'], r['message']))
             result['error'] = result['error'] if result['error'] else r['error']
             columns = r['columns']
+            processor = CSVProcessor(form, columns)
             #   2. Parse the file.
             if not result['error']:
-                r = self.process_csv_file(form, columns)
+                r = processor.process()
                 m = u'{0}\n{1}'
                 result['message'] = m.format(result['message'], r['message'])
                 result['error'] = result['error'] or r['error']
                 csvResults = r['csvResults']
             #   3. Interpret the data.
             if not result['error']:
-                r = self.process_csv_results(csvResults, form['delivery'])
+                r = processor.process_csv_results(csvResults, form['delivery'])
                 m = u'{0}\n{1}'
                 result['message'] = m.format(result['message'], r['message'])
                 result['error'] = result['error'] or r['error']
@@ -170,80 +168,6 @@ the link below and accept this invitation.'''
         assert 'form' in result
         assert type(result['form']) == dict
         return result
-
-    def process_columns(self, form):
-        '''Process the columns specified by the user.
-
-        DESCRIPTION
-          The administrator can create a CSV with the columns in any
-          order that he or she likes. However, the admin must specify
-          the columns seperately so we know what is entered. The job
-          of this method is to parse the column spec.
-
-        ARGUMENTS
-          form:     The form that contains the column specifications.
-
-        SIDE EFFECTS
-          None.
-
-        RETURNS
-          A dictionary containing the following keys.
-            error     bool    True if an error was encounter.
-            message   str     A feedback message.
-            columns   list    The columns the user specified. The list
-                              values are column IDs as strings.
-            form      dict    The form that was passed as an argument.
-        '''
-        assert type(form) == dict, 'The form is not a dict'
-        assert 'csvfile' in form, 'There is no "csvfile" in the form'
-        message = u''
-        error = False
-
-        colDict = {}
-        for key in form:
-            if 'column' in key and form[key] != 'nothing':
-                foo, col = key.split('column')
-                i = ord(col) - 65
-                colDict[i] = form[key]
-        columns = [colDict[i] for i in range(0, len(colDict))]
-
-        unspecified = self.get_unspecified_columns(columns)
-        if unspecified:
-            error = True
-            colPlural = len(unspecified) > 1 and 'columns have' \
-              or 'column has'
-            colM = '\n'.join(['<li>%s</li>' % c.title for c in unspecified])
-            m = u'<p>The required %s not been specified:</p>\n<ul>%s</ul>' %\
-              (colPlural, colM)
-            message = u'%s\n%s' % (message, m)
-
-        result = {'error': error,
-                  'message': message,
-                  'columns': columns,
-                  'form': form}
-        assert 'error' in result
-        assert type(result['error']) == bool
-        assert 'message' in result
-        assert type(result['message']) == unicode
-        assert 'columns' in result
-        assert type(result['columns']) == list
-        assert len(result['columns']) >= 2
-        assert 'form' in result
-        assert type(result['form']) == dict
-        return result
-
-    @Lazy
-    def requiredColumns(self):
-        retval = [p for p in self.profileList if p.value.required]
-        return retval
-
-    def get_unspecified_columns(self, columns):
-        '''Get the unspecified required columns'''
-        unspecified = []
-        for requiredColumn in self.requiredColumns:
-            if requiredColumn.token not in columns:
-                unspecified.append(requiredColumn)
-        return unspecified
 
 
 class CreateUsersAddForm(CreateUsersInviteForm):
