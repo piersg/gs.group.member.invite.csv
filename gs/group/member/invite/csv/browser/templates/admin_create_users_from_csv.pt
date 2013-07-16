@@ -34,7 +34,7 @@
     </ul>
     <form metal:fill-slot="body" id="gs-group-member-invite-csv" 
           enctype="multipart/form-data" method="post" action="." 
-          tal:attributes="action request/URL"
+          tal:attributes="action python:request['URL'] if 'URL' in request else '.'"
           tal:define="inviteAdd python:'Invite' if view.invite_only else 'Add'">
       <h1>
         <span 

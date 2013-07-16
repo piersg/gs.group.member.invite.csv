@@ -1,10 +1,11 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 '''Create Users from CSV file.
 
 This may appear to be a big scary module, but do not worry. Most of it
 is devoted to writing the error message.'''
 import transaction
 from csv import DictReader, Error as CSVError
+from zope.cachedescriptors.property import Lazy
 from zope.component import createObject
 from zope.formlib import form
 from gs.content.form.utils import enforce_schema
@@ -35,50 +36,53 @@ class CreateUsersInviteForm(GroupPage):
     # if this is set to true, we invite users. Otherwise we just add them.
     invite = True
 
-    def __init__(self, context, request):
-        super(CreateUsersInviteForm, self).__init__(context, request)
+    def __init__(self, group, request):
+        super(CreateUsersInviteForm, self).__init__(group, request)
 
-        self.siteInfo = createObject('groupserver.SiteInfo', context)
-        self.groupInfo = createObject('groupserver.GroupInfo', context)
-        self.profileList = ProfileList(context)
-        self.acl_users = context.site_root().acl_users
-        site_root = context.site_root()
+    @Lazy
+    def profileList(self):
+        retval = ProfileList(self.group)
+        return retval
+
+    @Lazy
+    def acl_users(self):
+        retval = self.group.site_root().acl_users
+        return retval
+
+    @Lazy
+    def globalConfiguration(self):
+        site_root = self.group.site_root()
         assert hasattr(site_root, 'GlobalConfiguration')
-
-        self.__admin = self.__subject = self.__message = None
-        self.__fromAddr = self.__profileInterfaceName = None
-        self.__profileFields = self.__requiredColumns = None
+        retval = site_root.GlobalConfiguration
+        return retval
 
     @property
     def invite_only(self):
         return self.invite
 
-    @property
+    @Lazy
     def profileSchemaName(self):
-        if self.__profileInterfaceName is None:
-            site_root = self.context.site_root()
-            assert hasattr(site_root, 'GlobalConfiguration')
-            config = site_root.GlobalConfiguration
-            ifName = config.getProperty('profileInterface', 'IGSCoreProfile')
-            # --=mpj17=-- Sometimes profileInterface is set to ''
-            ifName = (ifName and ifName) or 'IGSCoreProfile'
-            self.__profileInterfaceName = '%sAdminJoinCSV' % ifName
-            assert hasattr(profileSchemas, ifName), \
-                'Interface "%s" not found.' % ifName
-            assert hasattr(profileSchemas, self.__profileInterfaceName), \
-                'Interface "%s" not found.' % self.__profileInterfaceName
-        return self.__profileInterfaceName
+        site_root = self.context.site_root()
+        assert hasattr(site_root, 'GlobalConfiguration')
+        config = site_root.GlobalConfiguration
+        ifName = config.getProperty('profileInterface', 'IGSCoreProfile')
+        # --=mpj17=-- Sometimes profileInterface is set to ''
+        ifName = (ifName and ifName) or 'IGSCoreProfile'
+        retval = '%sAdminJoinCSV' % ifName
+        assert hasattr(profileSchemas, ifName), \
+            'Interface "%s" not found.' % ifName
+        assert hasattr(profileSchemas, retval), \
+            'Interface "%s" not found.' % retval
+        return retval
 
     @property
     def profileSchema(self):
         return getattr(profileSchemas, self.profileSchemaName)
 
-    @property
+    @Lazy
     def profileFields(self):
-        if self.__profileFields is None:
-            self.__profileFields = form.Fields(self.profileSchema,
-                                    render_context=False)
-        return self.__profileFields
+        retval = form.Fields(self.profileSchema, render_context=False)
+        return retval
 
     @property
     def columns(self):
@@ -100,47 +104,42 @@ class CreateUsersInviteForm(GroupPage):
         assert len(retval) > 0
         return retval
 
-    @property
+    @Lazy
     def adminInfo(self):
-        if self.__admin is None:
-            self.__admin = createObject('groupserver.LoggedInUser',
-                                        self.context)
-        return self.__admin
+        retval = self.loggedInUserInfo
+        return retval
 
-    @property
+    @Lazy
     def fromAddr(self):
-        if self.__fromAddr is None:
-            eu = EmailUser(self.context, self.adminInfo)
-            addrs = eu.get_addresses()
-            self.__fromAddr = addrs and addrs[0] or ''
-        return self.__fromAddr
+        eu = EmailUser(self.group, self.adminInfo)
+        addrs = eu.get_addresses()
+        retval = addrs[0] if addrs else u''
+        return retval
 
-    @property
+    @Lazy
     def subject(self):
-        if self.__subject is None:
-            self.__subject = u'Invitation to join %s' % self.groupInfo.name
-        return self.__subject
+        retval = u'Invitation to join {0}'.format(self.groupInfo.name)
+        return retval
 
-    @property
+    @Lazy
     def message(self):
-        if self.__message is None:
-            self.__message = u'''Hi there!
+        m = u'''Hi there!
 
-Please accept this invitation to join %s. I have set everything up for
+Please accept this invitation to join {0}. I have set everything up for
 you, so you can start participating in the group as soon as you follow
-the link below and accept this invitation.''' % self.groupInfo.name
-        return self.__message
+the link below and accept this invitation.'''
+        retval = m.format(self.groupInfo.name)
+        return retval
 
     @property
     def preview_js(self):
         msg = self.message.replace(' ', '%20').replace('\n', '%0A')
         subj = self.subject.replace(' ', '%20')
-        uri = 'admin_invitation_message_preview.html?form.body=%s&amp;'\
+        uri = u'admin_invitation_message_preview.html?form.body=%s&amp;'\
                 'form.fromAddr=%s&amp;form.subject=%s' % \
                 (msg, self.fromAddr, subj)
-        js = "window.open(%s, 'Message  Preview', "\
-            "'height=360,width=730,menubar=no,status=no,tolbar=no')" %\
-            uri
+        js = u"window.open(%s, 'Message  Preview', "\
+            "'height=360,width=730,menubar=no,status=no,tolbar=no')" % uri
         return js
 
     def process_form(self):
@@ -162,22 +161,21 @@ the link below and accept this invitation.''' % self.groupInfo.name
             # Processing the CSV is done in three stages.
             #   1. Process the columns.
             r = self.process_columns(form)
-            result['message'] = '%s\n%s' % \
-              (result['message'], r['message'])
-            result['error'] = result['error'] or r['error']
+            result['message'] = u'%s\n%s' % (result['message'], r['message'])
+            result['error'] = result['error'] if result['error'] else r['error']
             columns = r['columns']
             #   2. Parse the file.
             if not result['error']:
                 r = self.process_csv_file(form, columns)
-                result['message'] = '%s\n%s' %\
-                  (result['message'], r['message'])
+                m = u'{0}\n{1}'
+                result['message'] = m.format(result['message'], r['message'])
                 result['error'] = result['error'] or r['error']
                 csvResults = r['csvResults']
             #   3. Interpret the data.
             if not result['error']:
                 r = self.process_csv_results(csvResults, form['delivery'])
-                result['message'] = '%s\n%s' % \
-                  (result['message'], r['message'])
+                m = u'{0}\n{1}'
+                result['message'] = m.format(result['message'], r['message'])
                 result['error'] = result['error'] or r['error']
 
             assert 'error' in result
@@ -251,12 +249,10 @@ the link below and accept this invitation.''' % self.groupInfo.name
         assert type(result['form']) == dict
         return result
 
-    @property
+    @Lazy
     def requiredColumns(self):
-        if self.__requiredColumns is None:
-            self.__requiredColumns = [p for p in self.profileList
-                                        if p.value.required]
-        return self.__requiredColumns
+        retval = [p for p in self.profileList if p.value.required]
+        return retval
 
     def get_unspecified_columns(self, columns):
         '''Get the unspecified required columns'''
@@ -400,7 +396,7 @@ the link below and accept this invitation.''' % self.groupInfo.name
 
                 assert (existingUserCount + newUserCount + errorCount +
                   skippedUserCount) == rowCount,\
-                  'Discrepancy between counts: %d + %d + %d + %d != %d' %\
+                  u'Discrepancy between counts: %d + %d + %d + %d != %d' %\
                     (existingUserCount, newUserCount, errorCount,
                      skippedUserCount, rowCount)
 
@@ -516,7 +512,7 @@ the link below and accept this invitation.''' % self.groupInfo.name
             emailChecker.validate(email)
         except EmailAddressExists, e:
             user = self.acl_users.get_userByEmail(email)
-            assert user, 'User for <%s> not found' % email
+            assert user, u'User for <%s> not found' % email
             userInfo = IGSUserInfo(user)
             auditor, inviter = self.get_auditor_inviter(userInfo)
             if user_member_of_group(user, self.groupInfo):
