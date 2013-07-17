@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-'''Create Users from CSV file.
-
-This may appear to be a big scary module, but do not worry. Most of it
-is devoted to writing the error message.'''
-# import transaction
 from zope.cachedescriptors.property import Lazy
 from zope.formlib import form as formlib
 from gs.group.base import GroupPage
@@ -16,6 +11,11 @@ from processor import CSVProcessor
 import logging
 log = logging.getLogger('GSCreateUsersFromCSV')
 
+# TODO:  Refactor this product. The CSV processor should sort the goats from
+#        the sheep (or the members, non members, new people, and errors from
+#        each other). Seperate inviters should issue invites to the appropriate
+#        members.
+
 
 class CreateUsersInviteForm(GroupPage):
     # if this is set to true, we invite users. Otherwise we just add them.
@@ -23,11 +23,6 @@ class CreateUsersInviteForm(GroupPage):
 
     def __init__(self, group, request):
         super(CreateUsersInviteForm, self).__init__(group, request)
-
-    @Lazy
-    def acl_users(self):
-        retval = self.context.site_root().acl_users
-        return retval
 
     @Lazy
     def globalConfiguration(self):
@@ -154,7 +149,10 @@ the link below and accept this invitation.'''
             result['message'] = u'\n'.join((result['message'], r['message']))
             result['error'] = result['error'] if result['error'] else r['error']
             columns = r['columns']
-            processor = CSVProcessor(self.context, form, columns)
+            processor = CSVProcessor(self.context, self.request, form, columns,
+                                        self.subject, self.message,
+                                        self.fromAddr, self.profileSchema,
+                                        self.profileFields)
             #   2. Parse the file.
             if not result['error']:
                 r = processor.process()
@@ -185,6 +183,9 @@ the link below and accept this invitation.'''
         assert type(result) == dict
         assert 'form' in result
         assert type(result['form']) == dict
+
+        contentType = 'text/html; charset=UTF-8'
+        self.request.response.setHeader('Content-Type', contentType)
         return result
 
 
