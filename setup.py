@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 import os
 from setuptools import setup, find_packages
 from version import get_version
@@ -15,7 +15,7 @@ setup(name='gs.group.member.invite.csv',
       "Environment :: Web Environment",
       "Framework :: Zope2",
       "Intended Audience :: Developers",
-      "License :: Other/Proprietary License",
+        'License :: OSI Approved :: Zope Public License',
       "Natural Language :: English",
       "Operating System :: POSIX :: Linux"
       "Programming Language :: Python",
@@ -25,9 +25,10 @@ setup(name='gs.group.member.invite.csv',
     author='Richard Waid',
     author_email='richard@onlinegroups.net',
     url='http://groupserver.org',
-    license='ZPL',
+    license='ZPL 2,1',
     packages=find_packages(exclude=['ez_setup']),
-    namespace_packages=['gs', 'gs.group', 'gs.group.member', 'gs.group.member.invite'],
+    namespace_packages=['gs', 'gs.group', 'gs.group.member',
+                            'gs.group.member.invite'],
     include_package_data=True,
     zip_safe=False,
     install_requires=[
@@ -47,4 +48,3 @@ setup(name='gs.group.member.invite.csv',
     # -*- Entry points: -*-
     """,
 )
-
