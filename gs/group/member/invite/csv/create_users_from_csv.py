@@ -191,3 +191,6 @@ the link below and accept this invitation.'''
 
 class CreateUsersAddForm(CreateUsersInviteForm):
     invite = False
+
+class CreateUsersAddSiteForm(CreateUsersAddForm):
+    pass
