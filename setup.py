@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 ##############################################################################
 #
 # Copyright © 2013 OnlineGroups.net and Contributors.
@@ -47,8 +46,12 @@ setup(name='gs.group.member.invite.csv',
     zip_safe=False,
     install_requires=[
         'setuptools',
+        'zope.browserpage',
+        'zope.cachedescriptors',
+        'zope.formlib',
+        'zope.viewlet',
         'gs.content.form',
-        'gs.group.member.base',
+        'gs.group.member.invite.json',
         'gs.help',
         'gs.profile.email.base',
         'gs.profile.notify',
