@@ -1,39 +1,58 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configure xmlns="http://namespaces.zope.org/zope"
-  xmlns:browser="http://namespaces.zope.org/browser"
-  xmlns:five="http://namespaces.zope.org/five"
-  i18n_domain="groupserver">
+<!-- Copyright © 2013 E-Democracy.org and Contributors. -->
+<!-- All Rights Reserved. -->
 
-  <browser:page 
+<!-- This software is subject to the provisions of the Zope Public -->
+<!-- License, Version 2.1 (ZPL).  A copy of the ZPL should accompany this -->
+<!-- distribution. -->
+
+<!-- THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED -->
+<!-- WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED -->
+<!-- WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND -->
+<!-- FITNESS FOR A PARTICULAR PURPOSE. -->
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:browser="http://namespaces.zope.org/browser"
+           i18n_domain="groupserver">
+
+   <include package="zope.viewlet" file="meta.zcml" />
+
+ <browser:page
+    name="admin_invite_csv.html"
     for="gs.group.base.interfaces.IGSGroupMarker"
+    class="gs.group.base.GroupPage"
+    template="browser/templates/invite.pt"
+    permission="zope2.ManageUsers"/>
+
+  <browser:page
     name="admin_join_invite_csv.html"
+    for="gs.group.base.interfaces.IGSGroupMarker"
     class=".create_users_from_csv.CreateUsersInviteForm"
     template="browser/templates/admin_create_users_from_csv.pt"
     permission="zope2.ManageUsers"/>
 
-  <browser:page 
-    for="gs.group.base.interfaces.IGSGroupMarker"
+  <browser:page
     name="admin_join_add_csv.html"
+    for="gs.group.base.interfaces.IGSGroupMarker"
     class=".create_users_from_csv.CreateUsersAddForm"
     template="browser/templates/admin_create_users_from_csv.pt"
     permission="zope2.ManageUsers"/>
 
-  <!--browser:page 
+  <!--browser:page
     for="Products.GSContent.interfaces.IGSSiteFolder"
     name="admin_join_add_csv.html"
     class=".site.CreateUsersAddSiteForm"
     template="browser/templates/admin_create_users_from_csv_site.pt"
     permission="zope2.ManageUsers"/-->
 
-  <browser:page 
-    for="gs.group.base.interfaces.IGSGroupMarker"
+  <browser:page
     name="csv_to_json.html"
+    for="gs.group.base.interfaces.IGSGroupMarker"
     class=".csv_to_json.CSVJsonForm"
     permission="zope2.ManageUsers"/>
 
-  <browser:page 
-    for="gs.group.base.interfaces.IGSGroupMarker"
+  <browser:page
     name="csv.json"
+    for="gs.group.base.interfaces.IGSGroupMarker"
     class=".csv_to_json.CSVJson"
     permission="zope2.ManageUsers"/>
 
@@ -41,8 +60,8 @@
   <browser:viewlet
     name="gs-group-member-invite-csv-home-link"
     manager="gs.group.member.info.interfaces.IGroupMemberAdminLinks"
-    template="browser/templates/link.pt"
     class="gs.group.member.viewlet.GroupAdminViewlet"
+    template="browser/templates/link.pt"
     permission="zope2.ManageUsers"
     weight="15"
     title="Invite Members by CSV" />
