@@ -16,12 +16,16 @@
 
    <include package="zope.viewlet" file="meta.zcml" />
 
- <browser:page
-    name="admin_invite_csv.html"
-    for="gs.group.base.interfaces.IGSGroupMarker"
-    class="gs.group.base.GroupPage"
-    template="browser/templates/invite.pt"
-    permission="zope2.ManageUsers"/>
+   <browser:page
+     name="admin_invite_csv.html"
+     for="gs.group.base.interfaces.IGSGroupMarker"
+     class=".ui.CSVUploadUI"
+     template="browser/templates/invite.pt"
+     permission="zope2.ManageUsers"/>
+   <browser:resource
+     name="gs-group-member-invite-csv.js"
+     file="browser/javascript/invite.js"
+     permission="zope2.Public" />
 
   <browser:page
     name="admin_join_invite_csv.html"
