@@ -70,12 +70,11 @@ class CreateUsersInviteForm(GroupPage):
 
     @property
     def columns(self):
-        retval = []
-
         profileAttributes = {}
         for pa in self.profileList:
             profileAttributes[pa.token] = pa.title
 
+        retval = []
         for i in range(0, len(self.profileList)):
             j = i + 65
             columnId = 'column%c' % chr(j)
@@ -85,6 +84,7 @@ class CreateUsersInviteForm(GroupPage):
               'columnTitle': columnTitle,
               'profileList': self.profileList}
             retval.append(column)
+
         assert len(retval) > 0
         return retval
 
