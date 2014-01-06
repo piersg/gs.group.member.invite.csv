@@ -37,7 +37,7 @@
      permission="zope2.Public" />
 
   <browser:page
-    name="csv.json"
+    name="gs-group-member-invite-csv.json"
     for="gs.group.base.interfaces.IGSGroupMarker"
     class=".csv2json.CSV2JSON"
     permission="zope2.ManageUsers"/>
