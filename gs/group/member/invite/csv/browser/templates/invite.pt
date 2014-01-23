@@ -225,7 +225,7 @@
             <abbr class="initialism" title="Comma Separated Value">CSV</abbr>
             file is being checked &#8213; to ensure that each row has the
             right number of columns, for example.
-            (Technically, this step is called <q>parsing</q>.)
+            (Technically this step is called <q>parsing</q>.)
             Once the file has been checked then the people specified in the
             <abbr class="initialism" title="Comma Separated Value">CSV</abbr>
             file will be invited.
@@ -322,7 +322,7 @@ Please accept this invitation to join <tal:block replace="view/groupInfo/name">t
             defer="true"
             data-columns="#gs-group-member-invite-csv-columns-table"
             data-template="#gs-group-member-invite-csv-columns-template .btn"
-            data-parser-url="gs-group-member-invite-csv.json"
+            data-parser-url="/gs-group-member-invite-csv.json"
             data-invite-button="#form\.actions\.invite"
             data-form="#gs-group-member-invite-csv-form"
             data-unsupported="#gs-group-member-invite-csv-unsupported"
@@ -332,7 +332,6 @@ Please accept this invitation to join <tal:block replace="view/groupInfo/name">t
             data-inviting="#gs-group-member-invite-csv-feedback-inviting"
             data-delivery="[name=form\.delivery]"
             data-invitation='#gs-group-member-invite-csv-invitation'
-            data-reset='.reset'
-            > </script>
+            data-reset='.reset'> </script>
   </body>
 </html>

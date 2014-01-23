@@ -1,4 +1,15 @@
+// Copyright © 2014 OnlineGroups.net and Contributors.
+// All Rights Reserved.
+//
+// This software is subject to the provisions of the Zope Public License,
+// Version 2.1 (ZPL). http://groupserver.org/downloads/license/
+//
+// THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+// WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+// WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND
+// FITNESS FOR A PARTICULAR PURPOSE.
 jQuery.noConflict();
+
 
 function GSInviteByCSVOptionalAttributes(tableSelector) {
     var table=null, labels=null, titles=null, examples=null, optionalMenu=null;
@@ -157,6 +168,7 @@ function GSInviteByCSVOptionalAttributes(tableSelector) {
     }
 }
 
+
 function GSInviteByCSVTemplateGenerator(attributes) {
     var URL='data:text/csv;charset=utf-8,';
 
@@ -199,10 +211,11 @@ function GSInviteByCSVTemplateGenerator(attributes) {
     }
 }
 
-function GSInviteByCSVParserAJAX (attributes, formSelector, feedbackSelector, 
-                                  checkingSelector) {
+
+function GSInviteByCSVParserAJAX (attributes, formSelector, feedbackSelector,
+                                  checkingSelector, parserURL) {
     var form=null, feedback=null, checking=null,
-        URL='csv.json', PARSE_SUCCESS='parse_success', PARSE_FAIL='parse_fail';
+        PARSE_SUCCESS='parse_success', PARSE_FAIL='parse_fail';
 
     function success (data, textStatus, jqXHR) {
         var e=null, json=null, icon=null;;
@@ -278,7 +291,7 @@ function GSInviteByCSVParserAJAX (attributes, formSelector, feedbackSelector,
             traditional: true,
             // timeout: TODO, What is the sane timeout?
             type: 'POST',
-            url: URL,
+            url: parserURL,
         };
         jQuery.ajax(settings);
     }
@@ -301,12 +314,12 @@ function GSInviteByCSVParserAJAX (attributes, formSelector, feedbackSelector,
 }
 
 
-function GSInviteByCSVInviterAJAX (invitingBlockSelector, deliverySelector, 
-                                   messageSelector) {
+function GSInviteByCSVInviterAJAX (invitingBlockSelector, deliverySelector,
+                                   messageSelector, inviteURL) {
     var invitingBlock=null, progressBar=null, currN=null, total=null,
         success=null, ignored=null, problems=null, email=null,
-        delivery=null, message=null, json=null, membersToInvite=null, 
-        totalRows=0, currRow=0, URL='gs-group-member-invite-json.html';
+        delivery=null, message=null, json=null, membersToInvite=null,
+        totalRows=0, currRow=0;
 
     function show_inviting() {
         invitingBlock.addClass('in');
@@ -325,7 +338,7 @@ function GSInviteByCSVInviterAJAX (invitingBlockSelector, deliverySelector,
         console.log('Issues');
         console.log(textStatus);
         console.error(errorThrown);
-        info = '<li>Problem with row ' + currRow.toString() + ': ' 
+        info = '<li>Problem with row ' + currRow.toString() + ': '
             + textStatus + '</li>';
         log_feedback(info, problems);
         next();
@@ -372,7 +385,7 @@ function GSInviteByCSVInviterAJAX (invitingBlockSelector, deliverySelector,
         // final row.
         pc = (currRow / (totalRows + 1.0)) * 100;
         progressBar.css('width', pc.toString()+'%')
-        
+
         memberToInvite = membersToInvite.pop();
         email.text(memberToInvite.email);  // Email must exist
         // The invite code is actually expecting a toAddr field, rather than
@@ -410,7 +423,7 @@ function GSInviteByCSVInviterAJAX (invitingBlockSelector, deliverySelector,
             traditional: true,
             // timeout: TODO, What is the sane timeout?
             type: 'POST',
-            url: URL,
+            url: inviteURL,
         };
         jQuery.ajax(settings);
     }
@@ -462,12 +475,13 @@ function GSInviteByCSVInviterAJAX (invitingBlockSelector, deliverySelector,
     } // return
 }
 
+
 function gs_group_member_invite_csv () {
     var ms=null, ts=null, attributes=null, templateGenerator=null,
         parser=null, inviter=null, scriptElement=null;
 
     scriptElement = jQuery('#gs-group-member-invite-csv-js');
-    
+
     // The columns code
     ts = scriptElement.data('columns');
     attributes = GSInviteByCSVOptionalAttributes(ts);
@@ -479,16 +493,18 @@ function gs_group_member_invite_csv () {
 
     // The actual inviting: Parser
     parser = GSInviteByCSVParserAJAX(attributes, scriptElement.data('form'),
-                                     scriptElement.data('feedback'), 
-                                     scriptElement.data('checking'));
+                                     scriptElement.data('feedback'),
+                                     scriptElement.data('checking'),
+                                     scriptElement.data('parser-url'));
     // The actual inviting: Inviter
     inviter = GSInviteByCSVInviterAJAX(scriptElement.data('inviting'),
                                        scriptElement.data('delivery'),
-                                       scriptElement.data('invitation'))
+                                       scriptElement.data('invitation'),
+                                       scriptElement.data('invite-url'));
 
     // Connect the Invite button up to the parser
     jQuery(scriptElement.data('invite-button')).click(parser.parse);
-    // Connet the inviter up to the parser, inviting everyone if the 
+    // Connet the inviter up to the parser, inviting everyone if the
     // parsing ws successful
     jQuery(scriptElement.data('checking'))
         .on(parser.SUCCESS_EVENT, inviter.invite);
@@ -507,6 +523,7 @@ function gs_group_member_invite_csv () {
         });
 }
 
+
 function gs_group_member_invite_csv_unsupported () {
     var scriptElement=null;
 
@@ -518,6 +535,7 @@ function gs_group_member_invite_csv_unsupported () {
         .removeClass('hide')
         .addClass('in');
 }
+
 
 jQuery(window).load(function () {
     var fileSupported=false, formDataSupported=false;
