@@ -38,7 +38,7 @@
 
   <browser:page
     name="gs-group-member-invite-csv.json"
-    for="gs.group.base.interfaces.IGSGroupMarker"
+    for="Products.GSContent.interfaces.IGSSiteFolder"
     class=".csv2json.CSV2JSON"
     permission="zope2.ManageUsers"/>
 

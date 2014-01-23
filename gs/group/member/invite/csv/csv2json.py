@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-# Copyright © 2013 OnlineGroups.net and Contributors.
+# Copyright © 2014 OnlineGroups.net and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -18,18 +18,18 @@ from StringIO import StringIO
 from zope.cachedescriptors.property import Lazy
 from zope.contenttype import guess_content_type
 from zope.formlib import form as formlib
-from gs.content.form.api.json import GroupEndpoint
+from gs.content.form.api.json import SiteEndpoint
 from gs.content.form import multi_check_box_widget
 from .interface import ICsv
 from .unicodereader import UnicodeDictReader
 
 
-class CSV2JSON(GroupEndpoint):
+class CSV2JSON(SiteEndpoint):
     label = 'POST CSV data to this URL to parse it, and transform it into ' \
             'a JSON object.'
 
-    def __init__(self, group, request):
-        super(CSV2JSON, self).__init__(group, request)
+    def __init__(self, site, request):
+        super(CSV2JSON, self).__init__(site, request)
 
     @Lazy
     def form_fields(self):
