@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-# Copyright © 2013 OnlineGroups.net and Contributors.
+# Copyright © 2014 OnlineGroups.net and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -35,8 +35,8 @@ setup(name='gs.group.member.invite.csv',
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     keywords='sign up, registration, profile, user, join, invitation',
-    author='Richard Waid',
-    author_email='richard@onlinegroups.net',
+    author='Michael JasonSmith',
+    author_email='mpj17@onlinegroups.net',
     url='http://groupserver.org',
     license='ZPL 2,1',
     packages=find_packages(exclude=['ez_setup']),
@@ -47,18 +47,21 @@ setup(name='gs.group.member.invite.csv',
     install_requires=[
         'setuptools',
         'zope.browserpage',
+        'zope.app.apidoc.interface',
         'zope.cachedescriptors',
+        'zope.contenttype',
         'zope.formlib',
+        'zope.interface',
+        'zope.schema',
         'zope.viewlet',
         'gs.content.form',
+        'gs.content.form.api.json',
+        'gs.group.base',
         'gs.group.member.invite.json',
         'gs.help',
         'gs.profile.email.base',
-        'gs.profile.notify',
-        'gs.site.member',
         'Products.GSProfile',
         'Products.XWFCore',
-        'Products.CustomUserFolder'
     ],
     entry_points="""
     # -*- Entry points: -*-
