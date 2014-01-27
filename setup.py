@@ -47,7 +47,7 @@ setup(name='gs.group.member.invite.csv',
     install_requires=[
         'setuptools',
         'zope.browserpage',
-        'zope.app.apidoc.interface',
+        'zope.app.apidoc',
         'zope.cachedescriptors',
         'zope.contenttype',
         'zope.formlib',
