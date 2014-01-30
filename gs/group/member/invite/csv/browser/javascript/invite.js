@@ -175,7 +175,7 @@ function GSInviteByCSVTemplateGenerator(attributes) {
     function array_to_row(arr) {
         var retval=null;
         retval = jQuery.map(arr, function(v, i) {
-            return '"'+v+'"';
+            return '"'+v.trim()+'"';
         }).join(',');
         return retval;
     }
