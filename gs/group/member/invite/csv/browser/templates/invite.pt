@@ -8,15 +8,9 @@
       <tal:block
         replace="string:${view/groupInfo/name}: ${view/siteInfo/name}"/>
     </title>
-    <!--TODO: Metadata-->
-    <tal:block metal:fill-slot="metadata">
-      <link rel="up" href="/" title="Site Home"
-            tal:attributes="title string:${view/siteInfo/name} Home;"/>
-      <tal:block
-        replace="structure provider:groupserver.GroupHomepageMetadata">
-        The metadata for the Group page.
-      </tal:block>
-    </tal:block>
+    <link rel="up" href="/" title="Group Home" metal:fill-slot="metadata"
+          tal:attributes="href view/groupInfo/relativeURL;
+                          title string:${view/groupInfo/name};" />
   </head>
   <body>
     <ul metal:fill-slot="breadcrumb">
@@ -43,11 +37,20 @@
       <p class="intro muted">
         If you need to invite many people to join
         <span class="group" tal:content="view/groupInfo/name">this group</span>
-        then it <em>can</em> be easier to create a spreadsheet with all the
-        information about the new members, and upload that to this page.
-        It may also be a pain to get the data in the right format
-        (<abbr class="initialism" title="Comma Separated Value">CSV</abbr>, or
-        comma separated value).
+        then it <em>can</em> be easier to invite people in bulk, using this
+        page, than to use the
+        <a tal:attributes="href string:${view/groupInfo/relativeURL}/admin_join.html"
+           href="admin_join.html">Invite a new member</a>
+        page.
+
+        To invite people in bulk you must create a spreadsheet with all the
+        profile information about the new members, and upload that to this
+        page.
+
+        The difficulty in formatting the data correctly (in a
+        <abbr class="initialism" title="Comma Separated Value">CSV</abbr>,
+        or comma separated value, file) may outweigh the time savings in using
+        this page.
       </p>
       <div id="gs-group-member-invite-csv-form"
            class="fade in">
@@ -315,7 +318,7 @@ Please accept this invitation to join <tal:block replace="view/groupInfo/name">t
     <script metal:fill-slot="javascript"
             id="gs-group-member-invite-csv-js"
             type="text/javascript"
-            src="/++resource++gs-group-member-invite-csv.js"
+            src="/++resource++gs-group-member-invite-csv-20140130.js"
             defer="true"
             data-columns="#gs-group-member-invite-csv-columns-table"
             data-template="#gs-group-member-invite-csv-columns-template .btn"
