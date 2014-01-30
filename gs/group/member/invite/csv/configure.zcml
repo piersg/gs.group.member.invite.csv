@@ -32,7 +32,7 @@
      template="browser/templates/invite.pt"
      permission="zope2.ManageUsers"/>
    <browser:resource
-     name="gs-group-member-invite-csv.js"
+     name="gs-group-member-invite-csv-20140130.js"
      file="browser/javascript/invite.js"
      permission="zope2.Public" />
 
