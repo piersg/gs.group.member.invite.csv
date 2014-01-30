@@ -129,15 +129,12 @@
                   <td tal:condition="python:p.token=='email'" class="col-eg">
                     <code class="email">a.person@example.com</code>
                   </td>
-                  <td tal:condition="python:p.token=='fn'" class="col-eg fn">
-                    A. Person
-                  </td>
+                  <td tal:condition="python:p.token=='fn'"
+                      class="col-eg fn">A. Person</td>
                   <td tal:condition="python:p.token not in ('email', 'fn')"
-                      class="col-eg"
                       tal:attributes="class string:col-eg ${p/token};"
-                      tal:content="string:Example ${p/title}">
-                    Example Data
-                  </td>
+                      tal:content="string:Example ${p/title}"
+                      class="col-eg">Example Data</td>
                 </tal:block>
               </tr>
             </tbody>
