@@ -322,7 +322,7 @@ Please accept this invitation to join <tal:block replace="view/groupInfo/name">t
             defer="true"
             data-columns="#gs-group-member-invite-csv-columns-table"
             data-template="#gs-group-member-invite-csv-columns-template .btn"
-            data-parser-url="/gs-group-member-invite-csv.json"
+            data-parser-url="gs-group-member-invite-csv.json"
             data-invite-button="#form\.actions\.invite"
             data-form="#gs-group-member-invite-csv-form"
             data-unsupported="#gs-group-member-invite-csv-unsupported"
@@ -332,6 +332,7 @@ Please accept this invitation to join <tal:block replace="view/groupInfo/name">t
             data-inviting="#gs-group-member-invite-csv-feedback-inviting"
             data-delivery="[name=form\.delivery]"
             data-invitation='#gs-group-member-invite-csv-invitation'
-            data-reset='.reset'> </script>
+            data-reset='.reset'
+            tal:attributes="data-parser-url string:${view/groupInfo/relativeURL}/gs-group-member-invite-csv.json"> </script>
   </body>
 </html>

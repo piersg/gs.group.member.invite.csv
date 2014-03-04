@@ -7,7 +7,7 @@ Send invitations to join a group in bulk
 
 :Author: `Michael JasonSmith`_
 :Contact: Michael JasonSmith <mpj17@onlinegroups.net>
-:Date: 2014-01-21
+:Date: 2014-03-04
 :Organization: `GroupServer.org`_
 :Copyright: This document is licensed under a
   `Creative Commons Attribution-Share Alike 3.0 New Zealand License`_
@@ -33,8 +33,9 @@ Parsing
 
 In the CSV file each row represents a person, and each column represents a
 profile attribute. The form ``gs-group-member-invite-csv.json``, in the
-site context, parses the information in the CSV file and returns a JSON
-object: a list of profile data. The JavaScript_ then handles the inviting_.
+group context [#context]_, parses the information in the CSV file and
+returns a JSON object: a list of profile data. The JavaScript_ then handles
+the inviting_.
 
 The parsing form is a "JSON" form, as supplied by
 ``gs.content.form.api.json`` [#json]_. The HTTP ``PUT`` parses in a list of
@@ -158,6 +159,10 @@ Resources
 .. [#base] For issuing a single invitation see the base product
           ``gs.group.member.invite.base``:
           <https://source.iopen.net/groupserver/gs.group.member.invite.base>
+
+.. [#context] The form ``gs-group-member-invite-csv.json`` is also
+              available in the site context, for day that the site-wide
+              invite and add systems exist.
 
 .. [#profile] See
               <https://source.iopen.net/groupserver/gs.profile.invite>

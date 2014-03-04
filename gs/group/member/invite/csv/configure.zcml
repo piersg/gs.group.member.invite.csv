@@ -36,6 +36,13 @@
      file="browser/javascript/invite.js"
      permission="zope2.Public" />
 
+   <!-- The parser -->
+  <browser:page
+    name="gs-group-member-invite-csv.json"
+    for="gs.group.base.interfaces.IGSGroupMarker"
+    class=".csv2json.CSV2JSON"
+    permission="zope2.ManageUsers"/>
+  <!-- And for the site, for the site-wide Bulk Invite pages -->
   <browser:page
     name="gs-group-member-invite-csv.json"
     for="Products.GSContent.interfaces.IGSSiteFolder"
