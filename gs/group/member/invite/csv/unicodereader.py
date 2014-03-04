@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # <http://docs.python.org/2.7/library/csv.html#csv.DictReader>
-import codecs
+from codecs import getreader
 from csv import DictReader, excel
+from gs.core import to_unicode_or_bust
 
 
 class UTF8Recoder:
@@ -9,7 +10,7 @@ class UTF8Recoder:
     Iterator that reads an encoded stream and reencodes the input to UTF-8
     """
     def __init__(self, f, encoding):
-        self.reader = codecs.getreader(encoding)(f)
+        self.reader = getreader(encoding)(f)
 
     def __iter__(self):
         return self
@@ -36,11 +37,3 @@ class UnicodeDictReader:
 
     def __iter__(self):
         return self
-
-
-def to_unicode_or_bust(obj, encoding='utf-8'):
-    'http://farmdev.com/talks/unicode/'
-    if isinstance(obj, basestring):
-        if not isinstance(obj, unicode):
-            obj = unicode(obj, encoding)
-    return obj
