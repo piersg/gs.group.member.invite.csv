@@ -19,7 +19,7 @@ from zope.cachedescriptors.property import Lazy
 from zope.contenttype import guess_content_type
 from zope.formlib import form as formlib
 from gs.content.form.api.json import SiteEndpoint
-from gs.content.form import multi_check_box_widget
+from gs.content.form.base import multi_check_box_widget
 from .interface import ICsv
 from .unicodereader import UnicodeDictReader
 
