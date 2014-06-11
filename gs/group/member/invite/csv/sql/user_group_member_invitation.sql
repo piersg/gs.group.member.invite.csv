@@ -1,17 +1,18 @@
+SET CLIENT_ENCODING = 'UTF8';
 SET CLIENT_MIN_MESSAGES = WARNING;
 
 CREATE TABLE user_group_member_invitation (
-    INVITATION_ID        TEXT                        PRIMARY KEY,
-    USER_ID              TEXT                        NOT NULL,
-    INVITING_USER_ID     TEXT                        NOT NULL,
-    SITE_ID              TEXT                        NOT NULL,
-    GROUP_ID             TEXT                        NOT NULL,
-    INVITATION_DATE      TIMESTAMP WITH TIME ZONE    NOT NULL,
-    INITIAL_INVITE       BOOL                        DEFAULT FALSE,
-    RESPONSE_DATE        TIMESTAMP WITH TIME ZONE    DEFAULT NULL,
-    ACCEPTED             BOOL                        DEFAULT FALSE,
-    WITHDRAWN_DATE       TIMESTAMP WITH TIME ZONE    DEFAULT NULL,
-    WITHDRAWING_USER_ID  TIMESTAMP WITH TIME ZONE    DEFAULT NULL
+    invitation_id        TEXT                        PRIMARY KEY,
+    user_id              TEXT                        NOT NULL,
+    inviting_user_id     TEXT                        NOT NULL,
+    site_id              TEXT                        NOT NULL,
+    group_id             TEXT                        NOT NULL,
+    invitation_date      TIMESTAMP WITH TIME ZONE    NOT NULL DEFAULT NOW(),
+    initial_invite       BOOL                        DEFAULT FALSE,
+    response_date        TIMESTAMP WITH TIME ZONE    DEFAULT NULL,
+    accepted             BOOL                        DEFAULT FALSE,
+    withdrawn_date       TIMESTAMP WITH TIME ZONE    DEFAULT NULL,
+    withdrawing_user_id  TIMESTAMP WITH TIME ZONE    DEFAULT NULL
 );
 --=mpj17=-- There is no foreign key for user_id, yet
 
