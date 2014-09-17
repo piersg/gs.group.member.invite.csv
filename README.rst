@@ -7,11 +7,14 @@ Send invitations to join a group in bulk
 
 :Author: `Michael JasonSmith`_
 :Contact: Michael JasonSmith <mpj17@onlinegroups.net>
-:Date: 2014-03-04
+:Date: 2014-09-17
 :Organization: `GroupServer.org`_
 :Copyright: This document is licensed under a
-  `Creative Commons Attribution-Share Alike 3.0 New Zealand License`_
-  by `OnlineGroups.Net`_.
+  `Creative Commons Attribution-Share Alike 4.0 International License`_
+  by `OnlineGroups.net`_.
+
+..  _Creative Commons Attribution-Share Alike 4.0 International License:
+    http://creativecommons.org/licenses/by-sa/4.0/
 
 Introduction
 ============
@@ -145,7 +148,7 @@ helped by `Stack Overflow <http://stackoverflow.com/questions/17836273/>`_.
 Resources
 =========
 
-- Code repository: https://source.iopen.net/groupserver/gs.group.member.invite.csv
+- Code repository: https://github.com/groupserver/gs.group.member.invite.csv
 - Questions and comments to http://groupserver.org/groups/development
 - Report bugs at https://redmine.iopen.net/projects/groupserver
 
@@ -153,21 +156,19 @@ Resources
 .. _GroupServer.org: http://groupserver.org/
 .. _OnlineGroups.Net: https://onlinegroups.net
 .. _Michael JasonSmith: http://groupserver.org/p/mpj17
-.. _Creative Commons Attribution-Share Alike 3.0 New Zealand License:
-   http://creativecommons.org/licenses/by-sa/3.0/nz/
 
 .. [#base] For issuing a single invitation see the base product
           ``gs.group.member.invite.base``:
-          <https://source.iopen.net/groupserver/gs.group.member.invite.base>
+          <https://github.com/groupserver/gs.group.member.invite.base>
 
 .. [#context] The form ``gs-group-member-invite-csv.json`` is also
               available in the site context, for day that the site-wide
               invite and add systems exist.
 
 .. [#profile] See
-              <https://source.iopen.net/groupserver/gs.profile.invite>
+              <https://github.com/groupserver/gs.profile.invite>
 
-.. [#json] See <https://source.iopen.net/groupserver/gs.content.form.api.json>
+.. [#json] See <https://github.com/groupserver/gs.content.form.api.json>
 
 .. [#formData] See <https://developer.mozilla.org/en-US/docs/Web/API/FormData>
 
