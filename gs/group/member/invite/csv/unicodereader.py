@@ -5,7 +5,7 @@ from csv import DictReader, excel
 from gs.core import to_unicode_or_bust
 
 
-class UTF8Recoder:
+class UTF8Recoder(object):
     """
     Iterator that reads an encoded stream and reencodes the input to UTF-8
     """
@@ -19,7 +19,7 @@ class UTF8Recoder:
         return self.reader.next().encode("utf-8")
 
 
-class UnicodeDictReader:
+class UnicodeDictReader(object):
     """
     A CSV reader which will iterate over lines in the CSV file "f",
     which is encoded in the given encoding.
