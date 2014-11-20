@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+############################################################################
 #
-# Copyright © 2013 OnlineGroups.net and Contributors.
+# Copyright © 2012, 2013 OnlineGroups.net and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -11,7 +11,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-##############################################################################
+############################################################################
 from __future__ import absolute_import, unicode_literals
 from zope.interface.interface import Interface
 from zope.schema import Bytes, Choice, List, ValidationError
@@ -38,14 +38,16 @@ class RequiredAttributeMissingError(ValidationError):
 
 class ICsv(Interface):
     """Schema for parsing a CSV file."""
-    csv = Bytes(title='CSV File',
-            description='The CSV file to be processed.',
-            required=True)
+    csv = Bytes(
+        title='CSV File',
+        description='The CSV file to be processed.',
+        required=True)
 
     # TODO: Check for the required attributes
-    columns = List(title='Columns',
-                description='The columns in the CSV.',
-                value_type=Choice(title='Profile attribute',
-                                    vocabulary='ProfileAttributes'),
-                unique=True,
-                required=True)
+    columns = List(
+        title='Columns',
+        description='The columns in the CSV.',
+        value_type=Choice(title='Profile attribute',
+                          vocabulary='ProfileAttributes'),
+        unique=True,
+        required=True)

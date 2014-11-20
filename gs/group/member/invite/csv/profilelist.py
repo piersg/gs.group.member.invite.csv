@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+############################################################################
 #
-# Copyright © 2014 OnlineGroups.net and Contributors.
+# Copyright © 2013, 2014 OnlineGroups.net and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -11,7 +11,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-##############################################################################
+############################################################################
 from __future__ import absolute_import, unicode_literals
 from zope.app.apidoc.interface import getFieldsInOrder
 from zope.cachedescriptors.property import Lazy
@@ -35,8 +35,9 @@ class ProfileList(object):
     @Lazy
     def properties(self):
         retval = ODict()
-        retval['email'] = EmailAddress(title='Email',
-                            description='The email address of the new member')
+        retval['email'] = EmailAddress(
+            title='Email',
+            description='The email address of the new member')
         ifs = getFieldsInOrder(self.schema)
         for interface in ifs:
             key = unicode(interface[0])
@@ -57,7 +58,8 @@ class ProfileList(object):
         config = site_root.GlobalConfiguration
         ifName = config.getProperty('profileInterface', 'IGSCoreProfile')
         if not hasattr(profileSchemas, ifName):
-            raise ProfileNotFound('Interface "{0}" not found.'.format(ifName))
+            m = 'Interface "{0}" not found.'
+            raise ProfileNotFound(m.format(ifName))
 
         # --=mpj17=-- Sometimes profileInterface is set to ''
         retval = ifName if ifName else 'IGSCoreProfile'
