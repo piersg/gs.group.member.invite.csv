@@ -32,7 +32,7 @@ class UnicodeDictReader:
     def next(self):
         row = self.reader.next()
         retval = dict([(to_unicode_or_bust(k), to_unicode_or_bust(v))
-                        for k, v in row.items()])
+                       for k, v in row.items()])
         return retval
 
     def __iter__(self):
