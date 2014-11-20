@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+############################################################################
 #
 # Copyright © 2014 OnlineGroups.net and Contributors.
 # All Rights Reserved.
@@ -11,7 +11,7 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-##############################################################################
+############################################################################
 import codecs
 import os
 from setuptools import setup, find_packages
@@ -21,10 +21,12 @@ version = get_version()
 
 with codecs.open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
-with codecs.open(os.path.join("docs", "HISTORY.rst"), encoding='utf-8') as f:
+with codecs.open(os.path.join("docs", "HISTORY.rst"),
+                 encoding='utf-8') as f:
     long_description += '\n' + f.read()
 
-setup(name='gs.group.member.invite.csv',
+setup(
+    name='gs.group.member.invite.csv',
     version=version,
     description="Invite people to a group using a CSV file",
     long_description=long_description,
@@ -42,15 +44,16 @@ setup(name='gs.group.member.invite.csv',
     keywords='sign up, registration, profile, user, join, invitation',
     author='Michael JasonSmith',
     author_email='mpj17@onlinegroups.net',
-    url='https://source.iopen.net/groupserver/gs.group.member.invite.csv/',
+    url='https://github.com/groupserver/gs.group.member.invite.csv/',
     license='ZPL 2,1',
     packages=find_packages(exclude=['ez_setup']),
     namespace_packages=['gs', 'gs.group', 'gs.group.member',
-                            'gs.group.member.invite'],
+                        'gs.group.member.invite'],
     include_package_data=True,
     zip_safe=False,
     install_requires=[
         'setuptools',
+        'chardet',
         'zope.browserpage',
         'zope.app.apidoc',
         'zope.cachedescriptors',
@@ -70,5 +73,4 @@ setup(name='gs.group.member.invite.csv',
     ],
     entry_points="""
     # -*- Entry points: -*-
-    """,
-)
+    """, )

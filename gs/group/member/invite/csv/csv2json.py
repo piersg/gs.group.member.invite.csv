@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-##############################################################################
+############################################################################
 #
 # Copyright © 2014 OnlineGroups.net and Contributors.
 # All Rights Reserved.
@@ -11,10 +11,11 @@
 # WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
 # FOR A PARTICULAR PURPOSE.
 #
-##############################################################################
+############################################################################
 from __future__ import absolute_import, unicode_literals
+from io import BytesIO
 from json import dumps as to_json
-from StringIO import StringIO
+from chardet import detect
 from zope.cachedescriptors.property import Lazy
 from zope.contenttype import guess_content_type
 from zope.formlib import form as formlib
@@ -25,8 +26,8 @@ from .unicodereader import UnicodeDictReader
 
 
 class CSV2JSON(SiteEndpoint):
-    label = 'POST CSV data to this URL to parse it, and transform it into ' \
-            'a JSON object.'
+    label = 'POST CSV data to this URL to parse it, and transform it ' \
+            'into a JSON object.'
 
     def __init__(self, site, request):
         super(CSV2JSON, self).__init__(site, request)
@@ -38,25 +39,31 @@ class CSV2JSON(SiteEndpoint):
         assert retval
         return retval
 
+    @staticmethod
+    def guess_encoding(byteString):
+        d = detect(byteString)
+        retval = d['encoding']
+        return retval
+
     @formlib.action(label='Submit', prefix='', failure='process_failure')
     def process_success(self, action, data):
         cols = data['columns']
-        csv = StringIO(data['csv'])
+        csv = BytesIO(data['csv'])  # The file is Bytes, encoded.
+        encoding = self.guess_encoding(data['csv'])
         # TODO: Delivery?
 
-        reader = UnicodeDictReader(csv, cols)
+        reader = UnicodeDictReader(csv, cols, encoding=encoding)
         profiles = []
         retval = None
         try:
             next(reader)  # Skip the first row (the header)
         except UnicodeDecodeError as e:
             t = guess_content_type(body=data['csv'])[0]
-            msg = 'The file is different from what is required. (It appears '\
-                'to be a {0} file.) Please check that  you selected the '\
-                'correct CSV file.'
+            msg = 'The file is different from what is required. (It '\
+                  'appears to be a {0} file.) Please check that  you '\
+                  'selected the correct CSV file.'
             m = {'status': -2,
-                'message': [msg.format(t.split('/')[0]),
-                            str(e), t]}
+                 'message': [msg.format(t.split('/')[0]), str(e), t]}
             retval = to_json(m)
         else:
             rowCount = 0
@@ -64,14 +71,14 @@ class CSV2JSON(SiteEndpoint):
                 rowCount += 1
                 if len(row) != len(cols):
                     # *Technically* the number of columns in CSV rows can be
-                    # arbitary. However, I am enforcing a strict interpretation
-                    # for sanity's sake.
-                    msg = 'Row {0} had {1} columns, rather than {2}. Please ' \
-                            'check the file.'
+                    # arbitary. However, I am enforcing a strict
+                    # interpretation for sanity's sake.
+                    msg = 'Row {0} had {1} columns, rather than {2}. ' \
+                          'Please check the file.'
                     # Name hack.
                     m = {'status': -3,
-                        'message': [msg.format(rowCount, len(row),
-                                                        len(cols))]}
+                         'message': [msg.format(rowCount, len(row),
+                                     len(cols))]}
                     retval = to_json(m)
                     profiles = []
                     # --=mpj17=-- I think this is the first time I have used
@@ -84,7 +91,7 @@ class CSV2JSON(SiteEndpoint):
             msg = 'No rows were found in the CSV file. '\
                 'Please check that  you selected the correct CSV file.'
             m = {'status': -4,
-                'message': [msg, 'no-rows']}
+                 'message': [msg, 'no-rows']}
             retval = to_json(m)
         assert retval, 'No retval'
         return retval
