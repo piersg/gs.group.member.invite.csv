@@ -17,8 +17,8 @@ from unittest import TestSuite, main as unittest_main
 from gs.group.member.invite.csv.tests.unicodereader import (
     TestUnicodeReader)
 from gs.group.member.invite.csv.tests.csv2json import (
-    TestCSV2JSON)
-testCases = (TestUnicodeReader, TestCSV2JSON)
+    TestGuessEncoding, TestCSV2JSON)
+testCases = (TestUnicodeReader, TestGuessEncoding, TestCSV2JSON)
 
 
 def load_tests(loader, tests, pattern):

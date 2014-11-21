@@ -42,11 +42,14 @@ class CSV2JSON(SiteEndpoint):
     @staticmethod
     def guess_encoding(byteString):
         d = detect(byteString)
-        retval = d['encoding']
+        retval = d['encoding'] if d['encoding'] else 'utf-8'
         return retval
 
     @formlib.action(label='Submit', prefix='', failure='process_failure')
     def process_success(self, action, data):
+        return self.actual_process(data)
+
+    def actual_process(self, data):
         cols = data['columns']
         csv = BytesIO(data['csv'])  # The file is Bytes, encoded.
         encoding = self.guess_encoding(data['csv'])
@@ -64,6 +67,11 @@ class CSV2JSON(SiteEndpoint):
                   'selected the correct CSV file.'
             m = {'status': -2,
                  'message': [msg.format(t.split('/')[0]), str(e), t]}
+            retval = to_json(m)
+        except StopIteration:
+            msg = 'The file appears to be empty. Please check that you '\
+                  'generated the CSV file correctly.'
+            m = {'status': -5, 'message': [msg, 'no-rows']}
             retval = to_json(m)
         else:
             rowCount = 0
@@ -89,7 +97,7 @@ class CSV2JSON(SiteEndpoint):
             retval = to_json(profiles)
         elif (not profiles) and not(retval):
             msg = 'No rows were found in the CSV file. '\
-                'Please check that  you selected the correct CSV file.'
+                  'Please check that  you selected the correct CSV file.'
             m = {'status': -4,
                  'message': [msg, 'no-rows']}
             retval = to_json(m)
