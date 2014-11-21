@@ -71,6 +71,8 @@ setup(
         'Products.GSProfile',
         'Products.XWFCore',
     ],
+    test_suite="gs.group.member.invite.csv.tests.test_all",
+    tests_require=['mock', ],
     entry_points="""
     # -*- Entry points: -*-
     """, )
