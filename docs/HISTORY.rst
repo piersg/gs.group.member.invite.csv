@@ -5,6 +5,7 @@ Changelog
 ------------------
 
 * Detect the encoding of the CSV file
+* Added unit tests
 
 3.1.0 (2014-07-17)
 ------------------
