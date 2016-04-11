@@ -1,6 +1,14 @@
 Changelog
 =========
 
+3.2.1 (2016-04-11)
+------------------
+
+* Updating the code to Python 2.7
+* Using the ``mailto:`` generator from `gs.core`_
+
+.. _gs.core: http://github.com/groupserver/gs.core
+
 3.2.0 (2014-11-20)
 ------------------
 
@@ -21,7 +29,8 @@ Changelog
 * Following the form code to `gs.content.form.base`_
 * Tidying up the SQL
 
-.. _gs.content.form.base: http://github.com/groupserver/gs.content.form.base
+.. _gs.content.form.base:
+   http://github.com/groupserver/gs.content.form.base
 
 3.0.1 (2014-03-04)
 ------------------
