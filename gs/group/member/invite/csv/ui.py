@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ############################################################################
 #
-# Copyright © 2013, 2014 OnlineGroups.net and Contributors.
+# Copyright © 2013, 2014, 2016 OnlineGroups.net and Contributors.
 # All Rights Reserved.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -12,9 +12,9 @@
 # FOR A PARTICULAR PURPOSE.
 #
 ############################################################################
-from __future__ import absolute_import, unicode_literals
-from urllib import quote
+from __future__ import absolute_import, unicode_literals, print_function
 from zope.cachedescriptors.property import Lazy
+from gs.core import mailto
 from gs.group.base import GroupPage
 from gs.profile.email.base.emailuser import EmailUser
 from .profilelist import ProfileList
@@ -51,17 +51,13 @@ class CSVUploadUI(GroupPage):
     def unsupportedEmail(self):
         m = '''Hi,
 
-I would like to invite some people to join my group, {0}:
-  {1}
+I would like to invite some people to join my group, {groupInfo.name}:
+  {groupInfo.url}
 
 However, the Invite by CSV page does not support my browser. Could you
 please invite the people for me? I have attached a CSV file below.'''
 
-        msg = m.format(self.groupInfo.name.encode('ascii', 'ignore'),
-                       self.groupInfo.url)
-        b = 'body={0}'.format(quote(msg))
-        s = 'Subject={0}'.format(quote('Invite by CSV Unsupported'))
-        retval = 'mailto:{email}?{subject}&{body}'.format(
-            email=self.siteInfo.get_support_email(),
-            subject=s, body=b)
+        msg = m.format(groupInfo=self.groupInfo)
+        subject = 'Invite by CSV Unsupported'
+        retval = mailto(self.siteInfo.get_support_email(), subject, msg)
         return retval
