@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # <http://docs.python.org/2.7/library/csv.html#csv.DictReader>
 from codecs import getreader
-from csv import DictReader, excel
+from csv import DictReader
 from gs.core import to_unicode_or_bust
 
 
@@ -25,7 +25,7 @@ class UnicodeDictReader(object):
     which is encoded in the given encoding.
     """
 
-    def __init__(self, f, cols, dialect=excel, encoding="utf-8", **kwds):
+    def __init__(self, f, cols, dialect="excel", encoding="utf-8", **kwds):
         f = UTF8Recoder(f, encoding)
         self.reader = DictReader(f, cols, dialect=dialect, **kwds)
 
