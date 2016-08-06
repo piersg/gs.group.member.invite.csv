@@ -56,7 +56,7 @@ class CSV2JSON(SiteEndpoint):
         encoding = self.guess_encoding(data['csv'])
         # TODO: Delivery?
 
-        dialect = Sniffer().sniff(csv.read(1024))
+        dialect = Sniffer().sniff(csv.read(1024), [',', '\t'])
         csv.seek(0)
         reader = UnicodeDictReader(csv, cols, encoding=encoding, dialect=dialect)
         profiles = []
