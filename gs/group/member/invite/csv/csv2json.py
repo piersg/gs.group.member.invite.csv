@@ -23,7 +23,7 @@ from gs.content.form.api.json import SiteEndpoint
 from gs.content.form.base import multi_check_box_widget
 from .interface import ICsv
 from .unicodereader import UnicodeDictReader
-from csv import Sniffer
+from csv import Sniffer, excel
 
 
 class CSV2JSON(SiteEndpoint):
@@ -56,7 +56,10 @@ class CSV2JSON(SiteEndpoint):
         encoding = self.guess_encoding(data['csv'])
         # TODO: Delivery?
 
-        dialect = Sniffer().sniff(csv.read(1024), [',', '\t'])
+        try:
+            dialect = Sniffer().sniff(csv.readline(), [',', '\t'])
+        except err:
+            dialect = excel
         csv.seek(0)
         reader = UnicodeDictReader(csv, cols, encoding=encoding, dialect=dialect)
         profiles = []
